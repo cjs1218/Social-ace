@@ -136,6 +136,8 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .light.red.lit .bulb { background: #e5484d; }
 .light.amber.lit .bulb { background: #f5a524; }
 .light.green.lit .bulb { background: #30a46c; }
+.light.step .bulb { display: grid; place-items: center; font-size: 26px; opacity: .5; }
+.light.step.lit .bulb { background: var(--sun); opacity: 1; }
 .light.lit { border-color: var(--ink); }
 @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .pop { animation: pop .5s ease-out; }
@@ -282,6 +284,30 @@ const STORIES = [
     ]
   },
   {
+    id: 'hiback', pic: '👋', title: 'Saying hi back', where: 'At the school gate', place: 'school', extra: sam('laugh'),
+    steps: [
+      { type: 'tell', mood: 'calm', say: 'It is the morning at school. Sam waves and says: Hi Finn!' },
+      { type: 'tell', mood: 'wobbly', extra: sam('meh'), say: 'Finn feels shy. He looks at the floor and says hi really fast. Sam walks away.' },
+      { type: 'choose', mood: 'wobbly', extra: sam('sad'), say: 'How do you think Sam feels now?', options: [
+        { pic: '😔', text: 'Sad. He thinks Finn doesn\'t like him', good: true, reply: 'Yes. Sam can\'t tell that Finn feels shy inside. He might think Finn does not want to be friends.' },
+        { pic: '😀', text: 'Happy', reply: 'Look at Sam\'s face. He looks sad. When we look away, people can think we don\'t like them.' }
+      ]},
+      { type: 'lights', mood: 'happy', extra: sam('happy'), say: 'Here is the hi back recipe. Tap each one.', items: [
+        { cls: 'step', pic: '👀', title: 'Look up', sub: 'At their eyebrows or nose. That counts!' },
+        { cls: 'step', pic: '😊', title: 'Smile', sub: 'A small smile is fine' },
+        { cls: 'step', pic: '🗣️', title: 'Say their name', sub: 'Hi Sam! Nice and slow' }
+      ]},
+      { type: 'practise', mood: 'happy', extra: sam('happy'), words: 'Hi Sam!', say: 'Now you try. Look up, smile, and say it slowly: Hi Sam!' },
+      { type: 'choose', mood: 'happy', extra: sam('happy'), say: 'Super brave level! Finn can add one more thing. Which one?', options: [
+        { pic: '❓', text: 'Hi Sam! Did you have a good weekend?', good: true, reply: 'Brilliant! A question keeps the chat going.' },
+        { pic: '⚽', text: 'Hi Sam! Want to play at break?', good: true, reply: 'Brilliant! That is how friendships start.' },
+        { pic: '👋', text: 'Just: Hi Sam! and a wave', good: true, reply: 'That is great too. Hi and their name is plenty.' }
+      ]},
+      { type: 'tell', mood: 'big', extra: sam('laugh'), say: 'Sam grins. He sits next to Finn at carpet time.' },
+      { type: 'done', mood: 'big', extra: sam('laugh'), say: 'Look up, smile, say their name. You know the hi back recipe! You earned a star!' }
+    ]
+  },
+  {
     id: 'class', pic: '🏫', title: 'Saying hello', where: 'In a new class', place: 'school', extra: classKids,
     steps: [
       { type: 'tell', mood: 'calm', say: 'Finn is in a new class today. He sits next to a boy called Sam.' },
@@ -308,7 +334,11 @@ const STORIES = [
         { pic: '✋', text: 'No. Sam looks cross', good: true, reply: 'Well spotted! His eyebrows are down and his arms are crossed. That means stop.' },
         { pic: '😂', text: 'Yes, keep going', reply: 'Look again. Sam is not smiling, and his arms are crossed. If only one person is laughing, it is not a joke any more.' }
       ]},
-      { type: 'lights', mood: 'calm', extra: sam('cross'), say: 'When a game stops being fun, use your traffic light. Tap red, then amber, then green.' },
+      { type: 'lights', mood: 'calm', extra: sam('cross'), say: 'When a game stops being fun, use your traffic light. Tap red, then amber, then green.', items: [
+        { cls: 'red', title: 'Stop', sub: 'Keep my hands still' },
+        { cls: 'amber', title: 'Look', sub: 'At their face and body' },
+        { cls: 'green', title: 'Think', sub: 'Are they having fun?' }
+      ]},
       { type: 'choose', mood: 'wobbly', extra: sam('cross'), say: 'What could Finn say to Sam?', options: [
         { pic: '🤝', text: 'Sorry, I\'ll stop. Want to play a game?', good: true, reply: 'Yes! Stopping and saying sorry fixes things fast.' },
         { pic: '🙃', text: 'It\'s only a joke!', reply: 'Finn thinks it is a joke, but Sam does not. Let us try another way.' },
@@ -334,6 +364,7 @@ const SIGNALS = [
 
 const LADDER = [
   'Wave to someone you know',
+  'When a boy says hi: look up, smile, say hi and his name',
   'Say hi to a shop helper or librarian',
   'Ask a grown-up a question at a club',
   'Say hi to a child in your class you don\'t play with yet',
@@ -413,9 +444,8 @@ function showStep(story, i) {
   } else if (step.type === 'lights') {
     body = `<p class="say">${step.say}</p>
       <div class="lights">
-        <button class="light red" data-k="0"><span class="bulb"></span><span><b>Stop</b>Keep my hands still</span></button>
-        <button class="light amber" data-k="1" disabled><span class="bulb"></span><span><b>Look</b>At their face and body</span></button>
-        <button class="light green" data-k="2" disabled><span class="bulb"></span><span><b>Think</b>Are they having fun?</span></button>
+        ${step.items.map((it, k) => `<button class="light ${it.cls}" data-k="${k}" ${k ? 'disabled' : ''}>
+          <span class="bulb" aria-hidden="true">${it.pic || ''}</span><span><b>${it.title}</b>${it.sub}</span></button>`).join('')}
       </div>
       <button class="big" id="go" hidden>Next ➜</button>`;
   } else if (step.type === 'practise') {
@@ -458,11 +488,10 @@ function showStep(story, i) {
     });
     go.onclick = next;
   } else if (step.type === 'lights') {
-    const lines = ['Stop. Keep my hands still.', 'Look at their face and body.', 'Think. Are they having fun?'];
     const btns = $view.querySelectorAll('.light');
     btns.forEach(b => b.onclick = () => {
       const k = +b.dataset.k;
-      b.classList.add('lit'); speak(lines[k]);
+      b.classList.add('lit'); speak(step.items[k].title + '. ' + step.items[k].sub);
       if (btns[k + 1]) btns[k + 1].disabled = false; else go.hidden = false;
     });
     go.onclick = next;
@@ -563,6 +592,14 @@ function showGrown() {
         <li>Talk about the story afterwards: "When could you say 'Can I play?'"</li>
         <li>Before a party or new club, play the matching story that day.</li>
         <li>Use the Brave ladder for real-life practice. Start small and praise the effort, not the outcome.</li>
+      </ul>
+      <h3>If he blanks children who say hi</h3>
+      <p>Shy children often look down and rush their reply, and the other child can read that as "he doesn't like me". "Saying hi back" teaches a three-part recipe: look up, smile, say their name.</p>
+      <ul>
+        <li>Full eye contact isn't needed. Looking at eyebrows or the nose is easier and looks the same to the other child.</li>
+        <li>Help him learn the names of the boys who say hi. A name makes "hi" feel friendly.</li>
+        <li>Practise at home: say "Hi!" to each other at the door and try the recipe.</li>
+        <li>Afterwards, notice it: "I saw you say hi to Sam. He looked pleased."</li>
       </ul>
       <h3>If he winds other children up</h3>
       <p>Winding people up is often a way of trying to connect when starting a conversation feels hard. "Is it still funny?" and "Spot the signal" practise noticing when the other child has stopped enjoying it. Use the same words at home: "Stop, look, think. Is your friend still having fun?"</p>
