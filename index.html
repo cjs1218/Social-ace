@@ -139,6 +139,12 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .grown h3 { font-family: var(--display); font-weight: 600; font-size: 19px; margin: 18px 0 4px; }
 .grown p, .grown li { max-width: 62ch; }
 .grown ul { padding-left: 22px; margin: 4px 0; }
+.voice-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; align-items: center; margin: 8px 0; }
+.voice-row .small-btn { grid-column: 1 / -1; justify-self: start; }
+.pick {
+  font: inherit; font-size: 16px; min-height: 48px; padding: 8px 12px; border-radius: 14px;
+  border: 2px solid var(--line); background: var(--tint); color: var(--ink); min-width: 0; width: 100%;
+}
 .small-btn { border: 2px solid var(--line); background: var(--tint); border-radius: 14px; padding: 10px 16px; font-size: 16px; min-height: 48px; }
 .progress { display: flex; gap: 8px; justify-content: center; }
 .progress i { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
@@ -202,13 +208,32 @@ const speakBtn = document.getElementById('speakBtn');
 const notice = document.getElementById('notice');
 let voice = null, unlocked = false, speakTimer = null, started = false;
 
+/* Score voices so the most natural-sounding one wins: neural/premium voices first,
+   British English preferred, novelty and "compact" voices pushed to the bottom. */
+const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|whisper|wobble|zarvox|good news|deranged|hysterical/i;
+function voiceScore(v) {
+  const name = v.name || '', lang = (v.lang || '').replace('_', '-');
+  if (!lang.startsWith('en')) return -100;
+  let s = 0;
+  if (lang === 'en-GB') s += 4; else if (/en-(IE|AU|NZ)/.test(lang)) s += 2; else s += 1;
+  if (/natural|neural/i.test(name)) s += 8;
+  if (/premium/i.test(name)) s += 7;
+  if (/enhanced/i.test(name)) s += 6;
+  if (/google/i.test(name)) s += 4;
+  if (/serena|sonia|libby|maisie|martha|kate|stephanie|daniel|arthur|ryan|thomas/i.test(name)) s += 2;
+  if (/compact/i.test(name)) s -= 3;
+  if (NOVELTY.test(name)) s -= 50;
+  return s;
+}
+function englishVoices() {
+  try { return synth.getVoices().filter(v => voiceScore(v) > -50).sort((a, b) => voiceScore(b) - voiceScore(a)); }
+  catch (e) { return []; }
+}
+const SPEEDS = { slower: 0.85, normal: 0.98, faster: 1.1 };
 function pickVoice() {
-  try {
-    const vs = synth.getVoices();
-    voice = vs.find(v => v.lang === 'en-GB' && /natural|enhanced|premium/i.test(v.name))
-      || vs.find(v => v.lang === 'en-GB')
-      || vs.find(v => v.lang && v.lang.replace('_', '-').startsWith('en')) || null;
-  } catch (e) {}
+  const vs = englishVoices();
+  const saved = store('voice');
+  voice = vs.find(v => v.name === saved) || vs[0] || null;
 }
 if (canSpeak) { pickVoice(); try { synth.addEventListener('voiceschanged', pickVoice); } catch (e) { synth.onvoiceschanged = pickVoice; } }
 
@@ -232,7 +257,9 @@ function speak(text) {
     const go = () => {
       const u = new SpeechSynthesisUtterance(currentLine);
       if (voice) u.voice = voice;
-      u.lang = 'en-GB'; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
+      u.lang = voice ? voice.lang : 'en-GB';
+      u.rate = SPEEDS[store('speed')] || SPEEDS.normal;
+      u.pitch = 1.12; u.volume = 1;
       u.onstart = () => { started = true; speakBtn.classList.add('talking'); notice.hidden = true; };
       u.onend = u.onerror = () => speakBtn.classList.remove('talking');
       try { synth.resume(); } catch (e) {}
@@ -347,18 +374,18 @@ const STORIES = [
     id: 'park', cat: 'join', pic: '⚽', title: 'Joining a game', where: 'At the park', place: 'park', extra: parkKids,
     steps: [
       { type: 'tell', mood: 'calm', say: 'This is Finn. Finn is at the park. Some children are playing football.' },
-      { type: 'feel', say: 'Finn wants to play, but he does not know them. How do you think Finn feels?',
-        reply: 'Lots of people feel a bit wobbly when they meet new children. That is OK. Feelings can be big, and we can still be brave.' },
+      { type: 'feel', say: 'Finn wants to play, but he doesn\'t know them. How do you think Finn feels?',
+        reply: 'Lots of people feel a bit wobbly when they meet new children. That\'s OK. Feelings can be big, and we can still be brave.' },
       { type: 'choose', mood: 'wobbly', say: 'What could Finn do?', options: [
-        { pic: '👀', text: 'Watch for a bit, then walk closer', good: true, reply: 'Great idea! Watching first helps Finn see how the game works. Now he is ready.' },
-        { pic: '🏃', text: 'Run home', reply: 'That is OK. But then Finn misses the fun. Let us try another way.' },
-        { pic: '🤲', text: 'Grab the ball', reply: 'Oh! The children look surprised. Grabbing does not feel friendly. Let us try another way.' }
+        { pic: '👀', text: 'Watch for a bit, then walk closer', good: true, reply: 'Great idea! Watching first helps Finn see how the game works. Now he\'s ready.' },
+        { pic: '🏃', text: 'Run home', reply: 'That\'s OK. But then Finn misses the fun. Let\'s try another way.' },
+        { pic: '🤲', text: 'Grab the ball', reply: 'Oh! The children look surprised. Grabbing doesn\'t feel friendly. Let\'s try another way.' }
       ]},
       { type: 'practise', mood: 'happy', words: 'Can I play?', say: 'Finn uses his brave words. Can you say them with Finn? Say it out loud: Can I play?' },
       { type: 'tell', mood: 'big', say: 'The children say: Yes! You can be in goal!' },
       { type: 'choose', mood: 'happy', say: 'What should Finn do now?', options: [
         { pic: '😊', text: 'Smile and say thanks', good: true, reply: 'Yes! A smile and a thank you makes new friends feel happy too.' },
-        { pic: '👟', text: 'Look at his feet and say nothing', reply: 'That is OK when you feel shy. A small smile can help. Let us try that.' }
+        { pic: '👟', text: 'Look at his feet and say nothing', reply: 'That\'s OK when you feel shy. A small smile can help. Let\'s try that.' }
       ]},
       { type: 'done', mood: 'big', say: 'Finn was brave! He joined the game. You helped him. You earned a star!' }
     ]
@@ -366,10 +393,10 @@ const STORIES = [
   {
     id: 'hiback', cat: 'hi', pic: '👋', title: 'Saying hi back', where: 'At the school gate', place: 'school', extra: sam('laugh'),
     steps: [
-      { type: 'tell', mood: 'calm', say: 'It is the morning at school. Sam waves and says: Hi Finn!' },
+      { type: 'tell', mood: 'calm', say: 'It\'s the morning at school. Sam waves and says: Hi Finn!' },
       { type: 'tell', mood: 'wobbly', extra: sam('meh'), say: 'Finn feels shy. He looks at the floor and says hi really fast. Sam walks away.' },
       { type: 'choose', mood: 'wobbly', extra: sam('sad'), say: 'How do you think Sam feels now?', options: [
-        { pic: '😔', text: 'Sad. He thinks Finn doesn\'t like him', good: true, reply: 'Yes. Sam can\'t tell that Finn feels shy inside. He might think Finn does not want to be friends.' },
+        { pic: '😔', text: 'Sad. He thinks Finn doesn\'t like him', good: true, reply: 'Yes. Sam can\'t tell that Finn feels shy inside. He might think Finn doesn\'t want to be friends.' },
         { pic: '😀', text: 'Happy', reply: 'Look at Sam\'s face. He looks sad. When we look away, people can think we don\'t like them.' }
       ]},
       { type: 'lights', mood: 'happy', extra: sam('happy'), say: 'Here is the hi back recipe. Tap each one.', items: [
@@ -380,8 +407,8 @@ const STORIES = [
       { type: 'practise', mood: 'happy', extra: sam('happy'), words: 'Hi Sam!', say: 'Now you try. Look up, smile, and say it slowly: Hi Sam!' },
       { type: 'choose', mood: 'happy', extra: sam('happy'), say: 'Super brave level! Finn can add one more thing. Which one?', options: [
         { pic: '❓', text: 'Hi Sam! Did you have a good weekend?', good: true, reply: 'Brilliant! A question keeps the chat going.' },
-        { pic: '⚽', text: 'Hi Sam! Want to play at break?', good: true, reply: 'Brilliant! That is how friendships start.' },
-        { pic: '👋', text: 'Just: Hi Sam! and a wave', good: true, reply: 'That is great too. Hi and their name is plenty.' }
+        { pic: '⚽', text: 'Hi Sam! Want to play at break?', good: true, reply: 'Brilliant! That\'s how friendships start.' },
+        { pic: '👋', text: 'Just: Hi Sam! and a wave', good: true, reply: 'That\'s great too. Hi and their name is plenty.' }
       ]},
       { type: 'tell', mood: 'big', extra: sam('laugh'), say: 'Sam grins. He sits next to Finn at carpet time.' },
       { type: 'done', mood: 'big', extra: sam('laugh'), say: 'Look up, smile, say their name. You know the hi back recipe! You earned a star!' }
@@ -390,16 +417,16 @@ const STORIES = [
   {
     id: 'notfootball', cat: 'join', pic: '🃏', title: 'Not football today', where: 'At break time', place: 'park', extra: kid(470, '#2a9d8f', '#1c1c1c', 'laugh') + ball,
     steps: [
-      { type: 'tell', mood: 'calm', say: 'It is break time. Sam runs over. Finn! Come and play football!' },
-      { type: 'feel', say: 'Finn does not like football. How might he feel?',
-        reply: 'It is OK not to like football. Lots of children like other things. Finn can still be friends with Sam.' },
+      { type: 'tell', mood: 'calm', say: 'It\'s break time. Sam runs over. Finn! Come and play football!' },
+      { type: 'feel', say: 'Finn doesn\'t like football. How might he feel?',
+        reply: 'It\'s OK not to like football. Lots of children like other things. Finn can still be friends with Sam.' },
       { type: 'choose', mood: 'wobbly', say: 'What could Finn do?', options: [
         { pic: '💡', text: 'Say no thanks and suggest another game', good: true, reply: 'Great idea! Saying no kindly and suggesting a game is friendly.' },
-        { pic: '🚶', text: 'Walk away and say nothing', reply: 'Sam might think Finn does not like him. Let us try another way.' },
-        { pic: '😠', text: 'Play anyway but feel grumpy', reply: 'You can try football sometimes, but you do not have to. Let us find another way.' }
+        { pic: '🚶', text: 'Walk away and say nothing', reply: 'Sam might think Finn doesn\'t like him. Let\'s try another way.' },
+        { pic: '😠', text: 'Play anyway but feel grumpy', reply: 'You can try football sometimes, but you don\'t have to. Let\'s find another way.' }
       ]},
       { type: 'lights', mood: 'happy', say: 'Here is the no thanks recipe. Tap each one.', items: [
-        { cls: 'step', pic: '👀', title: 'Look and smile', sub: 'So Sam knows you are friendly' },
+        { cls: 'step', pic: '👀', title: 'Look and smile', sub: 'So Sam knows you\'re friendly' },
         { cls: 'step', pic: '🙂', title: 'Say no thanks kindly', sub: 'No thanks, I don\'t really like football' },
         { cls: 'step', pic: '💡', title: 'Suggest a game', sub: 'Do you want to play something else?' }
       ]},
@@ -411,11 +438,11 @@ const STORIES = [
       ]},
       { type: 'practise', mood: 'happy', words: 'No thanks. Do you want to play {game}?', say: 'Now say the whole thing with Finn: No thanks. Do you want to play {game}?' },
       { type: 'choose', mood: 'wobbly', extra: kid(470, '#2a9d8f', '#1c1c1c', 'meh') + ball, say: 'Sam says: No, I only want football. What could Finn do?', options: [
-        { pic: '👋', text: 'Say: OK, see you later! Then ask someone else', good: true, reply: 'Yes! Not everyone likes the same things, and that is OK. There are other children to ask.' },
-        { pic: '😡', text: 'Get cross with Sam', reply: 'It is OK to feel disappointed. But getting cross can upset Sam. Let us try another way.' },
-        { pic: '😢', text: 'Think: nobody likes me', reply: 'That is a wobbly thought, but it is not true. Sam just likes football. Let us try another way.' }
+        { pic: '👋', text: 'Say: OK, see you later! Then ask someone else', good: true, reply: 'Yes! Not everyone likes the same things, and that\'s OK. There are other children to ask.' },
+        { pic: '😡', text: 'Get cross with Sam', reply: 'It\'s OK to feel disappointed. But getting cross can upset Sam. Let\'s try another way.' },
+        { pic: '😢', text: 'Think: nobody likes me', reply: 'That\'s a wobbly thought, but it\'s not true. Sam just likes football. Let\'s try another way.' }
       ]},
-      { type: 'tell', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn asks Ava and Leo. They say: Yes! Let us play {game}!' },
+      { type: 'tell', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn asks Ava and Leo. They say: Yes! Let\'s play {game}!' },
       { type: 'done', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn found friends who like {game} too. You earned a star!' }
     ]
   },
@@ -427,12 +454,12 @@ const STORIES = [
         reply: 'New places can make our tummy feel funny. Taking a big slow breath can help. Breathe in, and out.' },
       { type: 'choose', mood: 'wobbly', say: 'Sam looks at Finn. What could Finn do?', options: [
         { pic: '👋', text: 'Wave and say hi', good: true, reply: 'Yes! A wave and a hi is a great way to start.' },
-        { pic: '🙈', text: 'Hide behind his book', reply: 'That is OK. Hiding feels safe, but Sam might think Finn does not want to talk. Let us try another way.' }
+        { pic: '🙈', text: 'Hide behind his book', reply: 'That\'s OK. Hiding feels safe, but Sam might think Finn doesn\'t want to talk. Let\'s try another way.' }
       ]},
-      { type: 'practise', mood: 'happy', words: "Hi, I'm Finn!", say: 'Say it with Finn: Hi, I am Finn! Now say it again with your own name.' },
+      { type: 'practise', mood: 'happy', words: "Hi, I'm Finn!", say: 'Say it with Finn: Hi, I\'m Finn! Now say it again with your own name.' },
       { type: 'choose', mood: 'happy', say: 'Sam says: Hi! I like your pencil case. What could Finn say?', options: [
         { pic: '🦖', text: 'Thanks! It has dinosaurs. Do you like dinosaurs?', good: true, reply: 'Brilliant! Asking a question keeps the chat going.' },
-        { pic: '🤐', text: 'Say nothing', reply: 'That is OK. Saying thanks is an easy first step. Let us try again.' }
+        { pic: '🤐', text: 'Say nothing', reply: 'That\'s OK. Saying thanks is an easy first step. Let\'s try again.' }
       ]},
       { type: 'done', mood: 'big', say: 'Finn said hello to a new friend. Well done for helping! You earned a star!' }
     ]
@@ -441,10 +468,10 @@ const STORIES = [
     id: 'funny', cat: 'faces', pic: '😜', title: 'Is it still funny?', where: 'At lunch', place: 'lunch', extra: sam('laugh'),
     steps: [
       { type: 'tell', mood: 'big', say: 'Finn is having lunch with Sam. Finn pulls a silly face. Sam laughs. Fun!' },
-      { type: 'tell', mood: 'happy', extra: sam('meh'), say: 'Finn keeps going. He pokes Sam and flicks his crisps. Sam is not laughing now.' },
+      { type: 'tell', mood: 'happy', extra: sam('meh'), say: 'Finn keeps going. He pokes Sam and flicks his crisps. Sam isn\'t laughing now.' },
       { type: 'choose', mood: 'happy', extra: sam('cross'), say: 'Look at Sam. Is Sam still having fun?', options: [
         { pic: '✋', text: 'No. Sam looks cross', good: true, reply: 'Well spotted! His eyebrows are down and his arms are crossed. That means stop.' },
-        { pic: '😂', text: 'Yes, keep going', reply: 'Look again. Sam is not smiling, and his arms are crossed. If only one person is laughing, it is not a joke any more.' }
+        { pic: '😂', text: 'Yes, keep going', reply: 'Look again. Sam isn\'t smiling, and his arms are crossed. If only one person is laughing, it\'s not a joke any more.' }
       ]},
       { type: 'lights', mood: 'calm', extra: sam('cross'), say: 'When a game stops being fun, use your traffic light. Tap red, then amber, then green.', items: [
         { cls: 'red', title: 'Stop', sub: 'Keep my hands still' },
@@ -453,11 +480,11 @@ const STORIES = [
       ]},
       { type: 'choose', mood: 'wobbly', extra: sam('cross'), say: 'What could Finn say to Sam?', options: [
         { pic: '🤝', text: 'Sorry, I\'ll stop. Want to play a game?', good: true, reply: 'Yes! Stopping and saying sorry fixes things fast.' },
-        { pic: '🙃', text: 'It\'s only a joke!', reply: 'Finn thinks it is a joke, but Sam does not. Let us try another way.' },
-        { pic: '👉', text: 'Poke him again', reply: 'That will make Sam more cross. Let us try another way.' }
+        { pic: '🙃', text: 'It\'s only a joke!', reply: 'Finn thinks it\'s a joke, but Sam doesn\'t. Let\'s try another way.' },
+        { pic: '👉', text: 'Poke him again', reply: 'That will make Sam more cross. Let\'s try another way.' }
       ]},
       { type: 'tell', mood: 'big', extra: sam('happy'), say: 'Sam smiles. They play a game together. Finn fixed it!' },
-      { type: 'done', mood: 'big', extra: sam('happy'), say: 'Stopping when someone is not having fun is a super skill. You earned a star!' }
+      { type: 'done', mood: 'big', extra: sam('happy'), say: 'Stopping when someone isn\'t having fun is a super skill. You earned a star!' }
     ]
   }
 ];
@@ -680,7 +707,7 @@ function showSignals(i, score, rounds) {
   $view.querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
     if (answered) return; answered = true;
     const right = (b.dataset.a === '1') === r.go;
-    const why = r.go ? 'Sam is having fun.' : 'Sam is not having fun. Stop and ask: are you OK?';
+    const why = r.go ? 'Sam is having fun.' : 'Sam isn\'t having fun. Stop and ask: are you OK?';
     reply.textContent = (right ? 'Yes! ' : 'Not this time. ') + why;
     reply.hidden = false; go.hidden = false;
     speak(reply.textContent);
@@ -721,6 +748,20 @@ function showGrown() {
     <div class="grown">
       <h2>For grown-ups</h2>
       <p>Social Ace helps a shy child rehearse social moments before they happen. Everything is read aloud, so your child doesn't need to read. Tap the speaker at the top to hear any screen again.</p>
+      <h3>Finn's voice</h3>
+      <p>Finn uses a voice built into this phone or tablet. Pick the one that sounds friendliest, then tap Try it.</p>
+      <div class="voice-row">
+        <label for="voicePick" class="hint">Voice</label>
+        <select id="voicePick" class="pick"></select>
+        <label for="speedPick" class="hint">Speed</label>
+        <select id="speedPick" class="pick">
+          <option value="slower">A bit slower</option>
+          <option value="normal">Normal</option>
+          <option value="faster">A bit faster</option>
+        </select>
+        <button class="small-btn" id="tryVoice">🔊 Try it</button>
+      </div>
+      <p class="hint">Want a more natural voice? On an iPhone or iPad, go to Settings, Accessibility, Spoken Content, Voices, English, and download an "Enhanced" or "Premium" UK voice. Then choose it here.</p>
       <h3>How to use it</h3>
       <ul>
         <li>Sit together for 5–10 minutes. One story is enough.</li>
@@ -746,6 +787,22 @@ function showGrown() {
       <p class="hint" id="resetMsg" hidden>Progress cleared.</p>
     </div>`));
   currentLine = 'For grown-ups. Social Ace helps a shy child rehearse social moments before they happen.';
+
+  const vp = $view.querySelector('#voicePick'), sp = $view.querySelector('#speedPick');
+  const fillVoices = () => {
+    const vs = englishVoices();
+    vp.innerHTML = vs.length
+      ? vs.map(v => `<option value="${v.name.replace(/"/g, '&quot;')}">${v.name.replace(/</g, '&lt;')} (${v.lang})</option>`).join('')
+      : '<option>No voices found on this device</option>';
+    if (voice) vp.value = voice.name;
+  };
+  fillVoices();
+  if (canSpeak) { try { synth.addEventListener('voiceschanged', fillVoices); } catch (e) {} }
+  sp.value = store('speed') || 'normal';
+  vp.onchange = () => { store('voice', vp.value); pickVoice(); speak('Hi! I\'m Finn. Let\'s be brave together!'); };
+  sp.onchange = () => { store('speed', sp.value); speak('Hi! I\'m Finn. Let\'s be brave together!'); };
+  $view.querySelector('#tryVoice').onclick = () => speak('Hi! I\'m Finn. Let\'s be brave together!');
+
   $view.querySelector('#reset').onclick = () => {
     store('stars', {}); store('ladder', []);
     $view.querySelector('#resetMsg').hidden = false;
