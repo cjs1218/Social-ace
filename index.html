@@ -308,6 +308,38 @@ const STORIES = [
     ]
   },
   {
+    id: 'notfootball', pic: '🃏', title: 'Not football today', where: 'At break time', place: 'park', extra: kid(470, '#2a9d8f', '#1c1c1c', 'laugh') + ball,
+    steps: [
+      { type: 'tell', mood: 'calm', say: 'It is break time. Sam runs over. Finn! Come and play football!' },
+      { type: 'feel', say: 'Finn does not like football. How might he feel?',
+        reply: 'It is OK not to like football. Lots of children like other things. Finn can still be friends with Sam.' },
+      { type: 'choose', mood: 'wobbly', say: 'What could Finn do?', options: [
+        { pic: '💡', text: 'Say no thanks and suggest another game', good: true, reply: 'Great idea! Saying no kindly and suggesting a game is friendly.' },
+        { pic: '🚶', text: 'Walk away and say nothing', reply: 'Sam might think Finn does not like him. Let us try another way.' },
+        { pic: '😠', text: 'Play anyway but feel grumpy', reply: 'You can try football sometimes, but you do not have to. Let us find another way.' }
+      ]},
+      { type: 'lights', mood: 'happy', say: 'Here is the no thanks recipe. Tap each one.', items: [
+        { cls: 'step', pic: '👀', title: 'Look and smile', sub: 'So Sam knows you are friendly' },
+        { cls: 'step', pic: '🙂', title: 'Say no thanks kindly', sub: 'No thanks, I don\'t really like football' },
+        { cls: 'step', pic: '💡', title: 'Suggest a game', sub: 'Do you want to play something else?' }
+      ]},
+      { type: 'choose', mood: 'happy', say: 'What game would you suggest?', options: [
+        { pic: '🏃', text: 'Tag', set: 'tag', good: true, reply: 'Tag! Great choice.' },
+        { pic: '🃏', text: 'Pokémon cards', set: 'Pokémon cards', good: true, reply: 'Pokémon cards! Great choice.' },
+        { pic: '🌳', text: 'Build a den', set: 'dens', good: true, reply: 'Den building! Great choice.' },
+        { pic: '🦖', text: 'Dinosaurs', set: 'dinosaurs', good: true, reply: 'Dinosaurs! Great choice.' }
+      ]},
+      { type: 'practise', mood: 'happy', words: 'No thanks. Do you want to play {game}?', say: 'Now say the whole thing with Finn: No thanks. Do you want to play {game}?' },
+      { type: 'choose', mood: 'wobbly', extra: kid(470, '#2a9d8f', '#1c1c1c', 'meh') + ball, say: 'Sam says: No, I only want football. What could Finn do?', options: [
+        { pic: '👋', text: 'Say: OK, see you later! Then ask someone else', good: true, reply: 'Yes! Not everyone likes the same things, and that is OK. There are other children to ask.' },
+        { pic: '😡', text: 'Get cross with Sam', reply: 'It is OK to feel disappointed. But getting cross can upset Sam. Let us try another way.' },
+        { pic: '😢', text: 'Think: nobody likes me', reply: 'That is a wobbly thought, but it is not true. Sam just likes football. Let us try another way.' }
+      ]},
+      { type: 'tell', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn asks Ava and Leo. They say: Yes! Let us play {game}!' },
+      { type: 'done', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn found friends who like {game} too. You earned a star!' }
+    ]
+  },
+  {
     id: 'class', pic: '🏫', title: 'Saying hello', where: 'In a new class', place: 'school', extra: classKids,
     steps: [
       { type: 'tell', mood: 'calm', say: 'Finn is in a new class today. He sits next to a boy called Sam.' },
@@ -368,6 +400,7 @@ const LADDER = [
   'Say hi to a shop helper or librarian',
   'Ask a grown-up a question at a club',
   'Say hi to a child in your class you don\'t play with yet',
+  'At break, suggest a game you like to someone',
   'Ask a child: Can I play?',
   'In a game, stop and ask: Is this still fun?'
 ];
@@ -415,8 +448,13 @@ function startStory(id) {
   showStep(story, 0);
 }
 
+let chosenGame = 'tag';
+const fill = s => (s || '').replace(/\{game\}/g, chosenGame);
+
 function showStep(story, i) {
-  const step = story.steps[i];
+  if (i === 0) chosenGame = 'tag';
+  const raw = story.steps[i];
+  const step = { ...raw, say: fill(raw.say), words: fill(raw.words) };
   const next = () => showStep(story, i + 1);
   const dots = story.steps.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('');
   const mood = step.mood || 'calm';
@@ -481,6 +519,10 @@ function showStep(story, i) {
   } else if (step.type === 'choose') {
     $view.querySelectorAll('.choice').forEach(b => b.onclick = () => {
       const o = step.options[+b.dataset.k];
+      if (o.set) {
+        chosenGame = o.set;
+        $view.querySelectorAll('.choice').forEach(x => x.classList.remove('picked-good'));
+      }
       b.classList.add(o.good ? 'picked-good' : 'picked-try');
       reply.textContent = o.reply; reply.hidden = false;
       go.hidden = !o.good;
@@ -601,6 +643,8 @@ function showGrown() {
         <li>Practise at home: say "Hi!" to each other at the door and try the recipe.</li>
         <li>Afterwards, notice it: "I saw you say hi to Sam. He looked pleased."</li>
       </ul>
+      <h3>If he doesn't like football</h3>
+      <p>"Not football today" gives him a kind way to say no and suggest something else. It also covers what to do if the other child says no. Help him by asking his teacher which classmates aren't into football, looking for lunchtime clubs, and inviting one child at a time to play at home.</p>
       <h3>If he winds other children up</h3>
       <p>Winding people up is often a way of trying to connect when starting a conversation feels hard. "Is it still funny?" and "Spot the signal" practise noticing when the other child has stopped enjoying it. Use the same words at home: "Stop, look, think. Is your friend still having fun?"</p>
       <h3>About this prototype</h3>
