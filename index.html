@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Social Ace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout: one calm column of big tappable "cards"; one screen visible at a time, Finn the fox always on stage. */
+:root {
+  --sky: #dff1fb;
+  --paper: #ffffff;
+  --ink: #1f3448;
+  --soft: #5a7186;
+  --leaf: #2f9e6a;
+  --sun: #ffc94a;
+  --fox: #f07c2a;
+  --line: #c7dce8;
+  --tint: #eef7fc;
+  --display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Lexend", "Verdana", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sky: #12202c; --paper: #1b2d3c; --ink: #eaf3f9; --soft: #a6bccb;
+    --leaf: #4fc58c; --sun: #ffd56e; --fox: #ff9448; --line: #2d4558; --tint: #22374a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sky: #12202c; --paper: #1b2d3c; --ink: #eaf3f9; --soft: #a6bccb;
+  --leaf: #4fc58c; --sun: #ffd56e; --fox: #ff9448; --line: #2d4558; --tint: #22374a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--sky); color: var(--ink);
+  font-family: var(--body); font-size: 20px; line-height: 1.6; letter-spacing: 0.02em;
+}
+.app {
+  max-width: 680px; margin: 0 auto; min-height: 100%;
+  padding-block: 16px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; }
+.brand { font-family: var(--display); font-weight: 600; font-size: 28px; margin: 0; }
+.brand span { color: var(--fox); }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
+.icon-btn {
+  width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--line);
+  background: var(--paper); display: grid; place-items: center; flex: none;
+}
+.icon-btn svg { width: 28px; height: 28px; }
+.stage {
+  background: var(--paper); border-radius: 28px; border: 2px solid var(--line);
+  overflow: hidden;
+}
+.scene { display: block; width: 100%; height: auto; max-width: 100%; }
+.talk { padding: 20px 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+.say { font-size: 24px; font-weight: 500; margin: 0; text-wrap: balance; }
+.hint { color: var(--soft); font-size: 17px; margin: 0; }
+.choices { display: grid; gap: 12px; }
+.choice {
+  display: flex; align-items: center; gap: 14px; text-align: left;
+  min-height: 72px; padding: 12px 16px; border-radius: 20px;
+  border: 3px solid var(--line); background: var(--tint);
+}
+.choice .pic { font-size: 34px; line-height: 1; flex: none; width: 44px; text-align: center; }
+.choice.picked-good { border-color: var(--leaf); }
+.choice.picked-try { border-color: var(--sun); }
+.feelings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.feel { flex-direction: column; justify-content: center; text-align: center; gap: 6px; font-size: 17px; }
+.feel .pic { font-size: 40px; width: auto; }
+.big {
+  min-height: 72px; border-radius: 22px; border: none; padding: 12px 24px;
+  background: var(--leaf); color: #fff; font-family: var(--display); font-size: 26px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.big.alt { background: var(--paper); color: var(--ink); border: 3px solid var(--line); }
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
+.row > * { flex: 1 1 200px; }
+.speech {
+  font-family: var(--display); font-size: 40px; font-weight: 600; text-align: center;
+  background: var(--sun); color: #3a2a00; border-radius: 24px; padding: 14px; margin: 0;
+}
+.home-grid { display: grid; gap: 14px; }
+.tile {
+  display: flex; align-items: center; gap: 16px; text-align: left;
+  background: var(--paper); border: 3px solid var(--line); border-radius: 26px;
+  padding: 16px 18px; min-height: 96px;
+}
+.tile .pic { font-size: 46px; line-height: 1; width: 56px; text-align: center; flex: none; }
+.tile b { font-family: var(--display); font-size: 26px; font-weight: 600; display: block; line-height: 1.2; }
+.tile small { color: var(--soft); font-size: 16px; }
+.stars { color: var(--fox); font-family: var(--display); font-size: 20px; }
+.ladder { display: flex; flex-direction: column-reverse; gap: 10px; }
+.rung {
+  display: flex; align-items: center; gap: 14px; text-align: left;
+  background: var(--paper); border: 3px solid var(--line); border-radius: 20px;
+  padding: 12px 16px; min-height: 76px;
+}
+.rung .num {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--tint); font-family: var(--display); font-weight: 600; font-size: 22px;
+}
+.rung.done { border-color: var(--leaf); }
+.rung.done .num { background: var(--leaf); color: #fff; }
+.rung .txt { flex: 1; min-width: 0; }
+.rung .star { font-size: 30px; flex: none; opacity: 0.25; }
+.rung.done .star { opacity: 1; }
+.grown { background: var(--paper); border-radius: 24px; border: 2px solid var(--line); padding: 20px 22px; font-size: 17px; }
+.grown h2 { font-family: var(--display); font-weight: 600; font-size: 24px; margin: 0 0 8px; }
+.grown h3 { font-family: var(--display); font-weight: 600; font-size: 19px; margin: 18px 0 4px; }
+.grown p, .grown li { max-width: 62ch; }
+.grown ul { padding-left: 22px; margin: 4px 0; }
+.small-btn { border: 2px solid var(--line); background: var(--tint); border-radius: 14px; padding: 10px 16px; font-size: 16px; min-height: 48px; }
+.progress { display: flex; gap: 8px; justify-content: center; }
+.progress i { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
+.progress i.on { background: var(--fox); }
+@keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.pop { animation: pop .5s ease-out; }
+@media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <button class="icon-btn" id="homeBtn" aria-label="Home" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <h1 class="brand">Social <span>Ace</span></h1>
+    <button class="icon-btn" id="speakBtn" aria-label="Read it to me">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+    </button>
+  </div>
+  <main id="view"></main>
+</div>
+
+<script>
+/* ---------- tiny helpers ---------- */
+const $view = document.getElementById('view');
+const homeBtn = document.getElementById('homeBtn');
+let currentLine = '';
+
+function store(key, val) {
+  try {
+    if (val === undefined) return JSON.parse(localStorage.getItem('socialace.' + key));
+    localStorage.setItem('socialace.' + key, JSON.stringify(val));
+  } catch (e) { return null; }
+}
+
+let voice = null;
+function pickVoice() {
+  try {
+    const vs = speechSynthesis.getVoices();
+    voice = vs.find(v => v.lang === 'en-GB') || vs.find(v => v.lang && v.lang.startsWith('en')) || null;
+  } catch (e) {}
+}
+try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
+
+function speak(text) {
+  currentLine = text || currentLine;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(currentLine);
+    if (voice) u.voice = voice;
+    u.lang = 'en-GB'; u.rate = 0.88; u.pitch = 1.05;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+document.getElementById('speakBtn').onclick = () => speak();
+homeBtn.onclick = () => showHome();
+
+function el(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content; }
+
+/* ---------- Finn the fox (drawn in code) ---------- */
+function fox(mood) {
+  const mouths = {
+    happy: '<path d="M88 132 q12 12 24 0" stroke="#3b2414" stroke-width="4" fill="none" stroke-linecap="round"/>',
+    big:   '<path d="M84 128 q16 22 32 0 z" fill="#3b2414"/>',
+    wobbly:'<path d="M86 134 q5 -5 10 0 t10 0 t10 0" stroke="#3b2414" stroke-width="4" fill="none" stroke-linecap="round"/>',
+    calm:  '<path d="M90 133 h20" stroke="#3b2414" stroke-width="4" stroke-linecap="round"/>'
+  };
+  const brows = mood === 'wobbly'
+    ? '<path d="M70 92 l14 4 M130 92 l-14 4" stroke="#3b2414" stroke-width="4" stroke-linecap="round"/>' : '';
+  return `<g>
+    <path d="M52 70 L66 18 L92 58 Z" fill="var(--fox)"/><path d="M60 62 L67 32 L82 56 Z" fill="#ffe3cc"/>
+    <path d="M148 70 L134 18 L108 58 Z" fill="var(--fox)"/><path d="M140 62 L133 32 L118 56 Z" fill="#ffe3cc"/>
+    <ellipse cx="100" cy="104" rx="56" ry="50" fill="var(--fox)"/>
+    <path d="M62 112 Q100 170 138 112 Q120 128 100 128 Q80 128 62 112 Z" fill="#fff6ee"/>
+    <circle cx="80" cy="102" r="7" fill="#3b2414"/><circle cx="120" cy="102" r="7" fill="#3b2414"/>
+    <circle cx="82" cy="99" r="2.4" fill="#fff"/><circle cx="122" cy="99" r="2.4" fill="#fff"/>
+    ${brows}
+    <ellipse cx="100" cy="120" rx="7" ry="5" fill="#3b2414"/>
+    ${mouths[mood] || mouths.happy}
+    <circle cx="68" cy="122" r="7" fill="#ff8f8f" opacity=".45"/><circle cx="132" cy="122" r="7" fill="#ff8f8f" opacity=".45"/>
+    <path d="M70 152 Q100 168 130 152 L136 200 L64 200 Z" fill="#3c7dd9"/>
+  </g>`;
+}
+
+function kid(x, color, hair) {
+  return `<g transform="translate(${x} 0)">
+    <circle cx="0" cy="118" r="20" fill="#f2c9a5"/>
+    <path d="M-20 112 q20 -26 40 0" fill="${hair}"/>
+    <circle cx="-7" cy="120" r="2.6" fill="#3b2414"/><circle cx="7" cy="120" r="2.6" fill="#3b2414"/>
+    <path d="M-6 128 q6 6 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M-22 140 h44 l6 60 h-56 z" fill="${color}"/>
+  </g>`;
+}
+
+function scene(place, mood, extra) {
+  const bg = {
+    park: `<rect width="600" height="260" fill="#bfe6fb"/><circle cx="520" cy="54" r="30" fill="#ffd45a"/>
+           <rect y="190" width="600" height="70" fill="#8ccf6e"/><circle cx="60" cy="150" r="48" fill="#5fae4a"/><rect x="54" y="160" width="12" height="40" fill="#8a5a33"/>`,
+    school: `<rect width="600" height="260" fill="#fbe9c9"/><rect x="250" y="34" width="220" height="110" rx="8" fill="#2f5d50"/>
+             <path d="M270 70 h60 M270 96 h110" stroke="#e8f2ee" stroke-width="5" stroke-linecap="round"/>
+             <rect y="200" width="600" height="60" fill="#d6b48a"/><rect x="40" y="40" width="120" height="90" rx="6" fill="#9fd3f0" stroke="#fff" stroke-width="6"/>`
+  }[place];
+  return `<svg class="scene" viewBox="0 0 600 260" role="img" aria-label="Finn the fox">
+    ${bg}${extra || ''}<g transform="translate(150 56) scale(1)">${fox(mood)}</g></svg>`;
+}
+
+const ball = '<circle cx="470" cy="206" r="16" fill="#fff" stroke="#333" stroke-width="3"/>';
+const parkKids = kid(400, '#e0533d', '#4a2f1d') + kid(520, '#7a4fd1', '#e8b545') + ball;
+const classKids = kid(470, '#2a9d8f', '#1c1c1c') + kid(550, '#e76f51', '#a0522d');
+
+/* ---------- stories ---------- */
+const STORIES = [
+  {
+    id: 'park', pic: '⚽', title: 'Joining a game', where: 'At the park', place: 'park', extra: parkKids,
+    steps: [
+      { type: 'tell', mood: 'calm', say: 'This is Finn. Finn is at the park. Some children are playing football.' },
+      { type: 'feel', say: 'Finn wants to play, but he does not know them. How do you think Finn feels?',
+        reply: 'Lots of people feel a bit wobbly when they meet new children. That is OK. Feelings can be big, and we can still be brave.' },
+      { type: 'choose', mood: 'wobbly', say: 'What could Finn do?', options: [
+        { pic: '👀', text: 'Watch for a bit, then walk closer', good: true, reply: 'Great idea! Watching first helps Finn see how the game works. Now he is ready.' },
+        { pic: '🏃', text: 'Run home', reply: 'That is OK. But then Finn misses the fun. Let us try another way.' },
+        { pic: '🤲', text: 'Grab the ball', reply: 'Oh! The children look surprised. Grabbing does not feel friendly. Let us try another way.' }
+      ]},
+      { type: 'practise', mood: 'happy', words: 'Can I play?', say: 'Finn uses his brave words. Can you say them with Finn? Say it out loud: Can I play?' },
+      { type: 'tell', mood: 'big', say: 'The children say: Yes! You can be in goal!' },
+      { type: 'choose', mood: 'happy', say: 'What should Finn do now?', options: [
+        { pic: '😊', text: 'Smile and say thanks', good: true, reply: 'Yes! A smile and a thank you makes new friends feel happy too.' },
+        { pic: '👟', text: 'Look at his feet and say nothing', reply: 'That is OK when you feel shy. A small smile can help. Let us try that.' }
+      ]},
+      { type: 'done', mood: 'big', say: 'Finn was brave! He joined the game. You helped him. You earned a star!' }
+    ]
+  },
+  {
+    id: 'class', pic: '🏫', title: 'Saying hello', where: 'In a new class', place: 'school', extra: classKids,
+    steps: [
+      { type: 'tell', mood: 'calm', say: 'Finn is in a new class today. He sits next to a boy called Sam.' },
+      { type: 'feel', say: 'How do you think Finn feels on his first day?',
+        reply: 'New places can make our tummy feel funny. Taking a big slow breath can help. Breathe in, and out.' },
+      { type: 'choose', mood: 'wobbly', say: 'Sam looks at Finn. What could Finn do?', options: [
+        { pic: '👋', text: 'Wave and say hi', good: true, reply: 'Yes! A wave and a hi is a great way to start.' },
+        { pic: '🙈', text: 'Hide behind his book', reply: 'That is OK. Hiding feels safe, but Sam might think Finn does not want to talk. Let us try another way.' }
+      ]},
+      { type: 'practise', mood: 'happy', words: "Hi, I'm Finn!", say: 'Say it with Finn: Hi, I am Finn! Now say it again with your own name.' },
+      { type: 'choose', mood: 'happy', say: 'Sam says: Hi! I like your pencil case. What could Finn say?', options: [
+        { pic: '🦖', text: 'Thanks! It has dinosaurs. Do you like dinosaurs?', good: true, reply: 'Brilliant! Asking a question keeps the chat going.' },
+        { pic: '🤐', text: 'Say nothing', reply: 'That is OK. Saying thanks is an easy first step. Let us try again.' }
+      ]},
+      { type: 'done', mood: 'big', say: 'Finn said hello to a new friend. Well done for helping! You earned a star!' }
+    ]
+  }
+];
+
+const LADDER = [
+  'Wave to someone you know',
+  'Say hi to a shop helper or librarian',
+  'Ask a grown-up a question at a club',
+  'Say hi to a child in your class you don\'t play with yet',
+  'Ask a child: Can I play?'
+];
+
+/* ---------- screens ---------- */
+function showHome() {
+  homeBtn.hidden = true;
+  const stars = store('stars') || {};
+  const ladder = store('ladder') || [];
+  const total = Object.values(stars).reduce((a, b) => a + b, 0) + ladder.length;
+  $view.replaceChildren(el(`
+    <div class="home-grid">
+      <div class="stage">${scene('park', 'big', '')}
+        <div class="talk"><p class="say">Hi! I'm Finn. Let's practise being brave together.</p>
+        <p class="stars" aria-label="${total} stars">★ ${total} star${total === 1 ? '' : 's'}</p></div>
+      </div>
+      ${STORIES.map(s => `
+        <button class="tile" data-story="${s.id}">
+          <span class="pic" aria-hidden="true">${s.pic}</span>
+          <span><b>${s.title}</b><small>${s.where}${stars[s.id] ? ' · ★ done' : ''}</small></span>
+        </button>`).join('')}
+      <button class="tile" data-go="ladder">
+        <span class="pic" aria-hidden="true">🪜</span>
+        <span><b>Brave ladder</b><small>Real-life missions · ${ladder.length} of ${LADDER.length}</small></span>
+      </button>
+      <button class="tile" data-go="grown">
+        <span class="pic" aria-hidden="true">🧑‍🧒</span>
+        <span><b>For grown-ups</b><small>How to use Social Ace</small></span>
+      </button>
+    </div>`));
+  $view.querySelectorAll('[data-story]').forEach(b => b.onclick = () => startStory(b.dataset.story));
+  $view.querySelector('[data-go="ladder"]').onclick = showLadder;
+  $view.querySelector('[data-go="grown"]').onclick = showGrown;
+  currentLine = "Hi! I'm Finn. Let's practise being brave together. Pick a story.";
+}
+
+function startStory(id) {
+  const story = STORIES.find(s => s.id === id);
+  homeBtn.hidden = false;
+  showStep(story, 0);
+}
+
+function showStep(story, i) {
+  const step = story.steps[i];
+  const next = () => showStep(story, i + 1);
+  const dots = story.steps.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('');
+  const mood = step.mood || 'calm';
+  let body = '';
+
+  if (step.type === 'tell' || step.type === 'done') {
+    body = `<p class="say">${step.say}</p>
+      ${step.type === 'done' ? '<p class="speech pop" aria-hidden="true">★</p>' : ''}
+      <button class="big" id="go">${step.type === 'done' ? 'Back home' : 'Next ➜'}</button>`;
+  } else if (step.type === 'feel') {
+    body = `<p class="say">${step.say}</p>
+      <div class="feelings">
+        ${[['😀', 'Happy'], ['😬', 'Wobbly'], ['😟', 'Scared']].map(([p, t]) =>
+          `<button class="choice feel"><span class="pic" aria-hidden="true">${p}</span>${t}</button>`).join('')}
+      </div>
+      <p class="hint" id="reply" hidden></p>
+      <button class="big" id="go" hidden>Next ➜</button>`;
+  } else if (step.type === 'choose') {
+    body = `<p class="say">${step.say}</p>
+      <div class="choices">
+        ${step.options.map((o, k) => `<button class="choice" data-k="${k}"><span class="pic" aria-hidden="true">${o.pic}</span>${o.text}</button>`).join('')}
+      </div>
+      <p class="say" id="reply" hidden></p>
+      <button class="big" id="go" hidden>Next ➜</button>`;
+  } else if (step.type === 'practise') {
+    body = `<p class="say">Finn's brave words:</p>
+      <p class="speech">${step.words}</p>
+      <div class="row">
+        <button class="big alt" id="hear">🔊 Hear it</button>
+        <button class="big" id="go">I said it! ✓</button>
+      </div>`;
+  }
+
+  $view.replaceChildren(el(`
+    <div class="stage">${scene(story.place, mood, story.extra)}
+      <div class="talk">${body}<div class="progress" aria-hidden="true">${dots}</div></div>
+    </div>`));
+  speak(step.say);
+
+  const go = $view.querySelector('#go');
+  const reply = $view.querySelector('#reply');
+
+  if (step.type === 'done') {
+    const stars = store('stars') || {};
+    stars[story.id] = 1; store('stars', stars);
+    go.onclick = showHome;
+  } else if (step.type === 'feel') {
+    $view.querySelectorAll('.feel').forEach(b => b.onclick = () => {
+      $view.querySelectorAll('.feel').forEach(x => x.classList.remove('picked-good'));
+      b.classList.add('picked-good');
+      reply.textContent = step.reply; reply.hidden = false; go.hidden = false;
+      speak(step.reply);
+    });
+    go.onclick = next;
+  } else if (step.type === 'choose') {
+    $view.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+      const o = step.options[+b.dataset.k];
+      b.classList.add(o.good ? 'picked-good' : 'picked-try');
+      reply.textContent = o.reply; reply.hidden = false;
+      go.hidden = !o.good;
+      speak(o.reply);
+    });
+    go.onclick = next;
+  } else if (step.type === 'practise') {
+    $view.querySelector('#hear').onclick = () => speak(step.words);
+    go.onclick = () => { speak('Brilliant! That was brave.'); setTimeout(next, 1400); };
+  } else {
+    go.onclick = next;
+  }
+}
+
+function showLadder() {
+  homeBtn.hidden = false;
+  const done = store('ladder') || [];
+  $view.replaceChildren(el(`
+    <div class="talk" style="padding:0">
+      <p class="say">Brave ladder</p>
+      <p class="hint">Do these in real life with a grown-up. Start at the bottom. Tap a step when you've done it.</p>
+    </div>
+    <div class="ladder" style="margin-top:14px">
+      ${LADDER.map((t, k) => `
+        <button class="rung ${done.includes(k) ? 'done' : ''}" data-k="${k}">
+          <span class="num">${k + 1}</span><span class="txt">${t}</span><span class="star" aria-hidden="true">★</span>
+        </button>`).join('')}
+    </div>`));
+  currentLine = 'Brave ladder. Do these in real life with a grown-up. Start at the bottom. ' + LADDER.join('. ');
+  $view.querySelectorAll('.rung').forEach(b => b.onclick = () => {
+    const k = +b.dataset.k;
+    const list = store('ladder') || [];
+    const has = list.includes(k);
+    const nextList = has ? list.filter(x => x !== k) : [...list, k];
+    store('ladder', nextList);
+    b.classList.toggle('done', !has);
+    if (!has) { b.querySelector('.star').classList.add('pop'); speak('You did it! ' + LADDER[k] + '. That was brave!'); }
+    else speak(LADDER[k]);
+  });
+}
+
+function showGrown() {
+  homeBtn.hidden = false;
+  $view.replaceChildren(el(`
+    <div class="grown">
+      <h2>For grown-ups</h2>
+      <p>Social Ace helps a shy child rehearse social moments before they happen. Everything is read aloud, so your child doesn't need to read. Tap the speaker at the top to hear any screen again.</p>
+      <h3>How to use it</h3>
+      <ul>
+        <li>Sit together for 5–10 minutes. One story is enough.</li>
+        <li>Talk about the story afterwards: "When could you say 'Can I play?'"</li>
+        <li>Before a party or new club, play the matching story that day.</li>
+        <li>Use the Brave ladder for real-life practice. Start small and praise the effort, not the outcome.</li>
+      </ul>
+      <h3>About this prototype</h3>
+      <p>No sign-in, no ads, no chat. Progress is kept only on this device.</p>
+      <button class="small-btn" id="reset">Reset stars and ladder</button>
+      <p class="hint" id="resetMsg" hidden>Progress cleared.</p>
+    </div>`));
+  currentLine = 'For grown-ups. Social Ace helps a shy child rehearse social moments before they happen.';
+  $view.querySelector('#reset').onclick = () => {
+    store('stars', {}); store('ladder', []);
+    $view.querySelector('#resetMsg').hidden = false;
+  };
+}
+
+showHome();
+</script>
+</body>
+</html>
