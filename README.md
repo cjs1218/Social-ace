@@ -4,7 +4,9 @@ A simple web prototype to help a shy 7-year-old practise social situations, desi
 
 - **Audio-first:** every screen is read aloud (tap the speaker to hear it again).
 - **23 stories with Finn the fox**, grouped into Saying hi, Joining in, Reading faces, Keeping friends and Tricky moments. Each has gentle choices, a tap-through "recipe" and brave words to say out loud.
-- **Spot the signal:** a quick game of reading another child's face and body language: keep playing, or stop and check?
+- **Today's adventure:** one tap gives a story, a game and a real-life mission, so there's no choosing.
+- **Faces that react:** the other children (and Finn) change expression when a choice is picked.
+- **Games:** Spot the signal, Face match, Arm's length and Wait for the gap (in `games.js`).
 - **Brave ladder:** real-life missions to tick off with a grown-up.
 - **For grown-ups:** tips on how to use it.
 

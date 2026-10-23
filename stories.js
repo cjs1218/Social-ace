@@ -7,7 +7,7 @@ const leo  = (m = 'happy', x = 540) => kid(x, '#7a4fd1', '#e8b545', m);
 const raj  = (m = 'happy', x = 470) => kid(x, '#e0533d', '#1c1c1c', m);
 const mia  = (m = 'happy', x = 480) => kid(x, '#f2a541', '#5a3a22', m);
 const ben  = (m = 'laugh', x = 480) => kid(x, '#3a7bd5', '#c98a3a', m);
-const adult = (m = 'happy', x = 500) => kid(x, '#3c6e91', '#6b4a2b', m, 1.3);
+const adult = (m = 'happy', x = 500) => kid(x, '#3c6e91', '#6b4a2b', m, 1.65);
 const star = say => ({ type: 'done', mood: 'big', say: say + ' You earned a star!' });
 
 STORIES.push(
@@ -111,7 +111,7 @@ STORIES.push(
   id: 'tooclose', cat: 'faces', pic: '📏', title: 'Too close', where: 'In the line', place: 'school', extra: ava('happy', 420),
   steps: [
     { type: 'tell', mood: 'big', say: 'Finn is excited to tell Ava about his weekend. He stands really close to her face.' },
-    { type: 'choose', mood: 'happy', extra: ava('cross', 500), say: 'Ava steps back. What does that mean?', options: [
+    { type: 'choose', mood: 'happy', extra: ava('cross', 500), react: false, say: 'Ava steps back. What does that mean?', options: [
       { pic: '📏', text: 'Finn is too close', good: true, reply: 'Well spotted! When someone steps back, they need more space.' },
       { pic: '➡️', text: 'Ava wants Finn to come closer', reply: 'Look again. Stepping back means: give me more space please.' }
     ]},
@@ -150,7 +150,7 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'big', say: 'Finn loves dinosaurs. He tells Leo about T. rex. And Stegosaurus. And Triceratops. And...' },
     { type: 'tell', mood: 'big', extra: leo('meh', 480), say: 'Leo is looking around the playground. He says: mmm.' },
-    { type: 'choose', mood: 'happy', extra: leo('meh', 480), say: 'Is Leo still interested?', options: [
+    { type: 'choose', mood: 'happy', extra: leo('meh', 480), react: false, say: 'Is Leo still interested?', options: [
       { pic: '🥱', text: 'No. He\'s looking away and only saying mmm', good: true, reply: 'Well spotted! Looking away can mean: I have heard enough for now.' },
       { pic: '🦖', text: 'Yes! Tell him more', reply: 'Look again. Looking away and saying mmm can mean Leo is bored now.' }
     ]},
@@ -169,7 +169,7 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'happy', say: 'Finn and Ava are playing a board game. Ava wins!' },
     { type: 'tell', mood: 'cross', say: 'Finn feels a big, hot, cross feeling. He wants to throw the dice!' },
-    { type: 'choose', mood: 'cross', say: 'Do you ever feel like that when you lose?', options: [
+    { type: 'choose', mood: 'cross', react: false, say: 'Do you ever feel like that when you lose?', options: [
       { pic: '😤', text: 'Yes, lots', good: true, reply: 'Lots of people feel cross when they lose. The feeling is OK. What we do with it is what matters.' },
       { pic: '😐', text: 'Sometimes', good: true, reply: 'Lots of people do. The feeling is OK. What we do with it is what matters.' },
       { pic: '🙂', text: 'Not really', good: true, reply: 'Great! These tricks still help when a feeling gets big.' }
@@ -190,7 +190,7 @@ STORIES.push(
     { type: 'tell', mood: 'wobbly', say: 'Ava is on the swing. Finn really, really wants a go. Waiting is hard!' },
     { type: 'choose', mood: 'wobbly', say: 'What could Finn do?', options: [
       { pic: '🙂', text: 'Ask: Can I have a go after you?', good: true, reply: 'Yes! Asking is the friendly way.' },
-      { pic: '✊', text: 'Pull the swing', reply: 'That could hurt Ava. Let\'s try asking.' },
+      { pic: '✊', text: 'Pull the swing', face: 'cross', reply: 'That could hurt Ava. Let\'s try asking.' },
       { pic: '📢', text: 'Shout: My turn!', reply: 'Shouting can upset people. Let\'s try asking.' }
     ]},
     { type: 'practise', mood: 'happy', words: 'Can I have a go after you?', say: 'Say it with Finn: Can I have a go after you?' },
@@ -207,7 +207,7 @@ STORIES.push(
   id: 'sad', cat: 'faces', pic: '💙', title: 'Spotting someone sad', where: 'In the playground', place: 'park', extra: leo('sad', 500),
   steps: [
     { type: 'tell', mood: 'calm', say: 'At break, Finn sees Leo sitting on his own. Leo\'s head is down.' },
-    { type: 'choose', mood: 'calm', say: 'How do you think Leo feels?', options: [
+    { type: 'choose', mood: 'calm', react: false, say: 'How do you think Leo feels?', options: [
       { pic: '😢', text: 'Sad or lonely', good: true, reply: 'Yes! Head down and sitting alone can mean sad.' },
       { pic: '😀', text: 'Happy', reply: 'Look at his face. His head is down and he looks sad.' }
     ]},
@@ -270,7 +270,7 @@ STORIES.push(
     { type: 'practise', mood: 'happy', words: 'Do you want to come to my house to play?', say: 'Say it with Finn: Do you want to come to my house to play?' },
     { type: 'choose', mood: 'wobbly', extra: leo('meh', 480), say: 'Leo says: I can\'t this week. What could Finn say?', options: [
       { pic: '👍', text: 'OK! Maybe another time?', good: true, reply: 'Yes! Can\'t this week doesn\'t mean no forever.' },
-      { pic: '😒', text: 'Fine, I don\'t care', reply: 'That might hurt Leo\'s feelings. Let\'s try a kind answer.' }
+      { pic: '😒', text: 'Fine, I don\'t care', finn: 'cross', reply: 'That might hurt Leo\'s feelings. Let\'s try a kind answer.' }
     ]},
     { type: 'tell', mood: 'big', extra: leo('laugh', 480), say: 'Leo says: Yes, next week! The grown-ups make a plan.' },
     star('Inviting someone is a big, brave step.')
@@ -283,7 +283,7 @@ STORIES.push(
     { type: 'choose', mood: 'wobbly', say: 'What could Finn say?', options: [
       { pic: '🤝', text: 'Let\'s play your game first, then mine', good: true, reply: 'Yes! Taking turns is fair, and Raj feels welcome.' },
       { pic: '🙅', text: 'No. My house, my game', reply: 'Raj might feel he\'s not welcome. Let\'s try sharing.' },
-      { pic: '😾', text: 'Sulk until Raj gives in', reply: 'Sulking can spoil the playdate. Let\'s try another way.' }
+      { pic: '😾', text: 'Sulk until Raj gives in', finn: 'cross', reply: 'Sulking can spoil the playdate. Let\'s try another way.' }
     ]},
     { type: 'lights', mood: 'happy', say: 'Here is the fair play plan. Tap each one.', items: [
       { cls: 'step', pic: '👂', title: 'Listen to their idea', sub: 'What do they want to play?' },
@@ -302,10 +302,10 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'wobbly', say: 'Finn asks Ava and Leo: Can I play? Leo says: No, it\'s only for two.' },
     { type: 'tell', mood: 'sad', say: 'Finn feels sad and a bit cross. That\'s OK. Being left out hurts.' },
-    { type: 'choose', mood: 'sad', say: 'What could Finn do?', options: [
+    { type: 'choose', mood: 'sad', react: 'finn', say: 'What could Finn do?', options: [
       { pic: '🔍', text: 'Find someone else to play with', good: true, reply: 'Yes! There are lots of other children to play with.' },
       { pic: '🧑‍🏫', text: 'Tell a grown-up if it keeps happening', good: true, reply: 'Yes. Grown-ups can help, especially if it happens a lot.' },
-      { pic: '✊', text: 'Push Leo', reply: 'That would hurt Leo and get Finn into trouble. Let\'s try another way.' }
+      { pic: '✊', text: 'Push Leo', finn: 'cross', reply: 'That would hurt Leo and get Finn into trouble. Let\'s try another way.' }
     ]},
     { type: 'lights', mood: 'calm', say: 'Here is Plan B. Tap each one.', items: [
       { cls: 'step', pic: '👀', title: 'Look around', sub: 'Who else is playing?' },
@@ -321,9 +321,9 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'wobbly', say: 'Ben laughs at Finn and says: You\'re rubbish at football!' },
     { type: 'choose', mood: 'sad', say: 'What could Finn do?', options: [
-      { pic: '😐', text: 'Say calmly: I like other things. Then walk away', good: true, reply: 'Yes! Staying calm means the teasing doesn\'t work.' },
-      { pic: '✊', text: 'Shout and push Ben', reply: 'That would make things worse, and Finn could get into trouble. Let\'s try another way.' },
-      { pic: '😢', text: 'Believe him and feel rubbish', reply: 'That\'s a hurt feeling. Ben\'s words aren\'t true. Finn is good at lots of things. Let\'s try another way.' }
+      { pic: '😐', text: 'Say calmly: I like other things. Then walk away', good: true, face: 'meh', finn: 'happy', reply: 'Yes! Staying calm means the teasing doesn\'t work.' },
+      { pic: '✊', text: 'Shout and push Ben', face: 'cross', finn: 'cross', reply: 'That would make things worse, and Finn could get into trouble. Let\'s try another way.' },
+      { pic: '😢', text: 'Believe him and feel rubbish', face: 'laugh', finn: 'sad', reply: 'That\'s a hurt feeling. Ben\'s words aren\'t true. Finn is good at lots of things. Let\'s try another way.' }
     ]},
     { type: 'lights', mood: 'calm', say: 'Here is the teasing toolkit. Tap each one.', items: [
       { cls: 'step', pic: '🫁', title: 'Stay calm', sub: 'Big breath' },

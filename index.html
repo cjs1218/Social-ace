@@ -165,9 +165,43 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .light.step .bulb { display: grid; place-items: center; font-size: 26px; opacity: .5; }
 .light.step.lit .bulb { background: var(--sun); opacity: 1; }
 .light.lit { border-color: var(--ink); }
+.adventure-btn { background: var(--fox); font-size: 24px; min-height: 80px; text-align: left; }
+.adventure-btn span:first-child { font-size: 34px; }
+.adv-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.adv-part {
+  display: flex; align-items: center; gap: 14px; padding: 10px 14px;
+  border-radius: 18px; border: 3px solid var(--line); background: var(--tint); opacity: .6;
+}
+.adv-part.now { opacity: 1; border-color: var(--fox); }
+.adv-part.done { opacity: 1; border-color: var(--leaf); }
+.adv-part small { display: block; color: var(--soft); font-size: 14px; line-height: 1.2; }
+.adv-part b { font-family: var(--display); font-weight: 600; font-size: 19px; line-height: 1.25; }
+.adv-pic {
+  flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 26px; background: var(--paper);
+}
+.adv-part.done .adv-pic { background: var(--leaf); color: #fff; font-weight: 700; }
+.faces { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.face-btn {
+  border: 3px solid var(--line); border-radius: 20px; background: #bfe6fb; padding: 6px; min-width: 0;
+}
+.face-btn svg { display: block; width: 100%; height: auto; }
+.face-btn.right { border-color: var(--leaf); box-shadow: 0 0 0 4px var(--leaf); }
+.face-btn.wrong { opacity: .35; }
+.feel-word { color: var(--fox); font-family: var(--display); font-size: 1.2em; }
+.slider { width: 100%; height: 48px; accent-color: var(--fox); }
+.slider::-webkit-slider-thumb { width: 40px; height: 40px; }
+.turn-btn { background: var(--soft); transition: background .15s, transform .15s; }
+.turn-btn.ready { background: var(--leaf); transform: scale(1.03); }
+.bubble circle { animation: dot 0.9s ease-in-out infinite; }
+.bubble .d2 { animation-delay: .15s; } .bubble .d3 { animation-delay: .3s; }
+@keyframes dot { 50% { transform: translateY(-5px); } }
+.kid, .finn { transform-box: fill-box; transform-origin: 50% 100%; }
+.bounce { animation: bounce .45s ease-out; }
+@keyframes bounce { 30% { transform: translateY(-8%) scale(1.04); } 60% { transform: translateY(0) scale(.98); } }
 @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .pop { animation: pop .5s ease-out; }
-@media (prefers-reduced-motion: reduce) { .pop, #speakBtn.talking { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .pop, .bounce, .bubble circle, #speakBtn.talking { animation: none; } }
 </style>
 </head>
 <body>
@@ -279,7 +313,7 @@ speakBtn.onclick = () => {
     if (!started && canSpeak) showNotice('Can\'t hear Finn? Turn the volume up, and on an iPhone or iPad check the silent switch is off.');
   }, 2500);
 };
-homeBtn.onclick = () => showHome();
+homeBtn.onclick = () => { clearGameTimers(); adventure = null; showHome(); };
 
 function el(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content; }
 
@@ -314,25 +348,45 @@ function fox(mood) {
   </g>`;
 }
 
-function kid(x, color, hair, mood = 'happy', s = 1) {
+function kid(x, color, hair, mood = 'happy', s = 1.35) {
+  return `<g transform="translate(${x} ${200 - 200 * s}) scale(${s})"><g class="kid">
+    <circle cx="0" cy="118" r="20" fill="#f2c9a5"/>
+    <path d="M-20 112 q20 -26 40 0" fill="${hair}"/>
+    <circle cx="-7" cy="120" r="2.6" fill="#3b2414"/><circle cx="7" cy="120" r="2.6" fill="#3b2414"/>
+    <path d="M-22 140 h44 l6 60 h-56 z" fill="${color}"/>
+    <g class="kid-mood">${kidMood(mood)}</g>
+  </g></g>`;
+}
+
+function kidMood(mood) {
   const mouth = {
     happy: '<path d="M-6 128 q6 6 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
     laugh: '<path d="M-8 126 q8 12 16 0 z" fill="#3b2414"/>',
     cross: '<path d="M-6 131 q6 -5 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
     sad:   '<path d="M-6 132 q6 -6 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    meh:   '<path d="M-5 129 h10" stroke="#3b2414" stroke-width="2.5" stroke-linecap="round"/>'
+    meh:   '<path d="M-5 129 h10" stroke="#3b2414" stroke-width="2.5" stroke-linecap="round"/>',
+    talk:  '<ellipse cx="0" cy="130" rx="5" ry="4" fill="#3b2414"/>'
   }[mood];
   const brows = mood === 'cross' ? '<path d="M-12 111 l8 4 M12 111 l-8 4" stroke="#3b2414" stroke-width="2.5" stroke-linecap="round"/>'
     : mood === 'sad' ? '<path d="M-12 115 l8 -3 M12 115 l-8 -3" stroke="#3b2414" stroke-width="2.5" stroke-linecap="round"/><path d="M8 124 q2 6 0 8 q-2 -2 0 -8" fill="#6ec3f0"/>' : '';
   const arms = mood === 'cross' ? `<rect x="-24" y="156" width="48" height="10" rx="5" fill="#f2c9a5"/>`
     : mood === 'laugh' ? '<path d="M-22 146 l-14 -18 M22 146 l14 -18" stroke="#f2c9a5" stroke-width="8" stroke-linecap="round"/>' : '';
-  return `<g transform="translate(${x} ${200 - 200 * s}) scale(${s})">
-    <circle cx="0" cy="118" r="20" fill="#f2c9a5"/>
-    <path d="M-20 112 q20 -26 40 0" fill="${hair}"/>
-    <circle cx="-7" cy="120" r="2.6" fill="#3b2414"/><circle cx="7" cy="120" r="2.6" fill="#3b2414"/>
-    ${brows}${mouth}
-    <path d="M-22 140 h44 l6 60 h-56 z" fill="${color}"/>${arms}
-  </g>`;
+  return brows + (mouth || '') + arms;
+}
+
+/* Make the faces in the current scene react to a choice */
+function react(kidM, finnM) {
+  const svg = $view.querySelector('.scene');
+  if (!svg) return;
+  svg.querySelectorAll('.kid').forEach(k => {
+    if (kidM) k.querySelector('.kid-mood').innerHTML = kidMood(kidM);
+    k.classList.remove('bounce'); requestAnimationFrame(() => k.classList.add('bounce'));
+  });
+  const f = svg.querySelector('.finn');
+  if (f && finnM) {
+    f.innerHTML = fox(finnM);
+    f.classList.remove('bounce'); requestAnimationFrame(() => f.classList.add('bounce'));
+  }
 }
 
 function scene(place, mood, extra) {
@@ -360,12 +414,12 @@ function scene(place, mood, extra) {
             <rect y="196" width="600" height="64" fill="#b98f6a"/>`
   }[place];
   return `<svg class="scene" viewBox="0 0 600 260" role="img" aria-label="Finn the fox">
-    ${bg}${extra || ''}<g transform="translate(150 56) scale(1)">${fox(mood)}</g></svg>`;
+    ${bg}${extra || ''}<g transform="translate(150 56)"><g class="finn">${fox(mood)}</g></g></svg>`;
 }
 
 const ball = '<circle cx="470" cy="206" r="16" fill="#fff" stroke="#333" stroke-width="3"/>';
 const parkKids = kid(400, '#e0533d', '#4a2f1d') + kid(520, '#7a4fd1', '#e8b545') + ball;
-const classKids = kid(470, '#2a9d8f', '#1c1c1c') + kid(550, '#e76f51', '#a0522d');
+const classKids = kid(445, '#2a9d8f', '#1c1c1c') + kid(545, '#e76f51', '#a0522d');
 const sam = mood => kid(470, '#2a9d8f', '#1c1c1c', mood);
 
 /* ---------- stories ---------- */
@@ -395,7 +449,7 @@ const STORIES = [
     steps: [
       { type: 'tell', mood: 'calm', say: 'It\'s the morning at school. Sam waves and says: Hi Finn!' },
       { type: 'tell', mood: 'wobbly', extra: sam('meh'), say: 'Finn feels shy. He looks at the floor and says hi really fast. Sam walks away.' },
-      { type: 'choose', mood: 'wobbly', extra: sam('sad'), say: 'How do you think Sam feels now?', options: [
+      { type: 'choose', mood: 'wobbly', extra: sam('sad'), react: false, say: 'How do you think Sam feels now?', options: [
         { pic: '😔', text: 'Sad. He thinks Finn doesn\'t like him', good: true, reply: 'Yes. Sam can\'t tell that Finn feels shy inside. He might think Finn doesn\'t want to be friends.' },
         { pic: '😀', text: 'Happy', reply: 'Look at Sam\'s face. He looks sad. When we look away, people can think we don\'t like them.' }
       ]},
@@ -439,8 +493,8 @@ const STORIES = [
       { type: 'practise', mood: 'happy', words: 'No thanks. Do you want to play {game}?', say: 'Now say the whole thing with Finn: No thanks. Do you want to play {game}?' },
       { type: 'choose', mood: 'wobbly', extra: kid(470, '#2a9d8f', '#1c1c1c', 'meh') + ball, say: 'Sam says: No, I only want football. What could Finn do?', options: [
         { pic: '👋', text: 'Say: OK, see you later! Then ask someone else', good: true, reply: 'Yes! Not everyone likes the same things, and that\'s OK. There are other children to ask.' },
-        { pic: '😡', text: 'Get cross with Sam', reply: 'It\'s OK to feel disappointed. But getting cross can upset Sam. Let\'s try another way.' },
-        { pic: '😢', text: 'Think: nobody likes me', reply: 'That\'s a wobbly thought, but it\'s not true. Sam just likes football. Let\'s try another way.' }
+        { pic: '😡', text: 'Get cross with Sam', face: 'cross', finn: 'cross', reply: 'It\'s OK to feel disappointed. But getting cross can upset Sam. Let\'s try another way.' },
+        { pic: '😢', text: 'Think: nobody likes me', face: 'meh', finn: 'sad', reply: 'That\'s a wobbly thought, but it\'s not true. Sam just likes football. Let\'s try another way.' }
       ]},
       { type: 'tell', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn asks Ava and Leo. They say: Yes! Let\'s play {game}!' },
       { type: 'done', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn found friends who like {game} too. You earned a star!' }
@@ -469,7 +523,7 @@ const STORIES = [
     steps: [
       { type: 'tell', mood: 'big', say: 'Finn is having lunch with Sam. Finn pulls a silly face. Sam laughs. Fun!' },
       { type: 'tell', mood: 'happy', extra: sam('meh'), say: 'Finn keeps going. He pokes Sam and flicks his crisps. Sam isn\'t laughing now.' },
-      { type: 'choose', mood: 'happy', extra: sam('cross'), say: 'Look at Sam. Is Sam still having fun?', options: [
+      { type: 'choose', mood: 'happy', extra: sam('cross'), react: false, say: 'Look at Sam. Is Sam still having fun?', options: [
         { pic: '✋', text: 'No. Sam looks cross', good: true, reply: 'Well spotted! His eyebrows are down and his arms are crossed. That means stop.' },
         { pic: '😂', text: 'Yes, keep going', reply: 'Look again. Sam isn\'t smiling, and his arms are crossed. If only one person is laughing, it\'s not a joke any more.' }
       ]},
@@ -480,8 +534,8 @@ const STORIES = [
       ]},
       { type: 'choose', mood: 'wobbly', extra: sam('cross'), say: 'What could Finn say to Sam?', options: [
         { pic: '🤝', text: 'Sorry, I\'ll stop. Want to play a game?', good: true, reply: 'Yes! Stopping and saying sorry fixes things fast.' },
-        { pic: '🙃', text: 'It\'s only a joke!', reply: 'Finn thinks it\'s a joke, but Sam doesn\'t. Let\'s try another way.' },
-        { pic: '👉', text: 'Poke him again', reply: 'That will make Sam more cross. Let\'s try another way.' }
+        { pic: '🙃', text: 'It\'s only a joke!', face: 'cross', reply: 'Finn thinks it\'s a joke, but Sam doesn\'t. Let\'s try another way.' },
+        { pic: '👉', text: 'Poke him again', face: 'cross', finn: 'cross', reply: 'That will make Sam more cross. Let\'s try another way.' }
       ]},
       { type: 'tell', mood: 'big', extra: sam('happy'), say: 'Sam smiles. They play a game together. Finn fixed it!' },
       { type: 'done', mood: 'big', extra: sam('happy'), say: 'Stopping when someone isn\'t having fun is a super skill. You earned a star!' }
@@ -520,25 +574,127 @@ const CATS = [
   { id: 'tricky', pic: '🧭', title: 'Tricky moments' }
 ];
 
+/* ---------- Today's adventure: one story, one game, one real-life mission ---------- */
+let adventure = null;
+const todayKey = () => new Date().toDateString();
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+function newPlan(prev) {
+  const stars = store('stars') || {}, ladder = store('ladder') || [];
+  const fresh = STORIES.filter(s => !stars[s.id] && (!prev || s.id !== prev.story));
+  const story = (fresh.length ? pick(fresh) : pick(STORIES.filter(s => !prev || s.id !== prev.story))).id;
+  const game = pick(GAMES.filter(g => !prev || g.id !== prev.game)).id;
+  const todo = LADDER.map((_, k) => k).filter(k => !ladder.includes(k));
+  const mission = todo.length ? todo[0] : pick(LADDER.map((_, k) => k));
+  return { date: todayKey(), story, game, mission, step: 0 };
+}
+function currentPlan() {
+  const p = store('adv');
+  return p && p.date === todayKey() ? p : null;
+}
+function advLabel() {
+  const p = currentPlan();
+  if (!p) return 'Today\'s adventure';
+  if (p.step >= 3) return 'Adventure done! Play another?';
+  return 'Keep going: Today\'s adventure';
+}
+
+function showAdventure() {
+  homeBtn.hidden = false;
+  clearGameTimers();
+  let p = currentPlan();
+  if (!p || p.step >= 3 && adventure === null) p = newPlan(p);
+  store('adv', p);
+  const story = STORIES.find(s => s.id === p.story), game = GAMES.find(g => g.id === p.game);
+  const parts = [
+    { pic: story.pic, label: 'Story', title: story.title },
+    { pic: game.pic, label: 'Game', title: game.title },
+    { pic: '🌟', label: 'Real-life mission', title: LADDER[p.mission] }
+  ];
+  const complete = p.step >= 3;
+  $view.replaceChildren(el(`
+    <div class="stage">${scene('park', complete ? 'big' : 'happy', '')}
+      <div class="talk">
+        <p class="say">${complete ? 'Adventure complete! You were so brave today.' : 'Today\'s adventure'}</p>
+        <ol class="adv-list">
+          ${parts.map((x, k) => `<li class="adv-part ${k < p.step ? 'done' : k === p.step ? 'now' : ''}">
+            <span class="adv-pic" aria-hidden="true">${k < p.step ? '✓' : x.pic}</span>
+            <span><small>${x.label}</small><b>${x.title}</b></span>
+          </li>`).join('')}
+        </ol>
+        ${complete ? '<p class="speech pop" aria-hidden="true">★ ★ ★</p>' : ''}
+        <button class="big" id="advGo">${complete ? 'Back home' : p.step === 0 ? 'Start ➜' : 'Keep going ➜'}</button>
+      </div>
+    </div>`));
+  speak(complete
+    ? 'Adventure complete! You were so brave today. You earned a star!'
+    : p.step === 0 ? `Today's adventure! First a story: ${story.title}. Then a game: ${game.title}. Then a real-life mission.`
+    : p.step === 1 ? `Great story! Next, the game: ${game.title}.`
+    : 'Nearly there! Last, your real-life mission.');
+  $view.querySelector('#advGo').onclick = () => {
+    if (complete) { adventure = null; showHome(); return; }
+    adventure = p;
+    if (p.step === 0) startStory(p.story);
+    else if (p.step === 1) game.start();
+    else showMission(p);
+  };
+}
+
+function showMission(p) {
+  const text = LADDER[p.mission];
+  $view.replaceChildren(el(`
+    <div class="stage">${scene('home', 'big', '')}
+      <div class="talk">
+        <p class="say">Your real-life mission:</p>
+        <p class="speech">${text}</p>
+        <p class="hint">Do it with a grown-up today or tomorrow. Then tick it off on the Brave ladder.</p>
+        <button class="big" id="go">We'll try it! ✓</button>
+      </div>
+    </div>`));
+  speak('Your real-life mission: ' + text + '. Do it with a grown-up today or tomorrow.');
+  $view.querySelector('#go').onclick = finished;
+}
+
+/* Called when a story, game or mission ends */
+function finished() {
+  clearGameTimers();
+  if (!adventure) { showHome(); return; }
+  adventure.step += 1;
+  if (adventure.step >= 3) store('advDone', (store('advDone') || 0) + 1);
+  store('adv', adventure);
+  showAdventure();
+}
+function finishButtons() { const h = $view.querySelector('#home'); if (h) h.onclick = finished; }
+
 /* ---------- screens ---------- */
 function showHome() {
   homeBtn.hidden = true;
   const stars = store('stars') || {};
   const ladder = store('ladder') || [];
-  const total = Object.values(stars).reduce((a, b) => a + b, 0) + ladder.length;
+  const total = Object.values(stars).reduce((a, b) => a + b, 0) + ladder.length + (store('advDone') || 0);
+  adventure = null;
   $view.replaceChildren(el(`
     <div class="home-grid">
       <div class="stage">${scene('park', 'big', '')}
         <div class="talk"><p class="say">Hi! I'm Finn. Let's practise being brave together.</p>
+        <button class="big adventure-btn" id="advBtn">
+          <span aria-hidden="true">🗺️</span>
+          <span>${advLabel()}</span>
+        </button>
         <p class="stars" aria-label="${total} stars">★ ${total} star${total === 1 ? '' : 's'}</p></div>
       </div>
+      <section class="cat" aria-labelledby="cat-games">
+        <h2 class="cat-title" id="cat-games"><span aria-hidden="true">🎮</span> Games</h2>
+        <div class="cards">
+          ${GAMES.map(g => `<button class="card game" data-game="${g.id}">
+            <span class="pic" aria-hidden="true">${g.pic}</span><b>${g.title}</b><small>${g.sub}${stars[g.id] ? ' · <span class="done">★</span>' : ''}</small>
+          </button>`).join('')}
+        </div>
+      </section>
       ${CATS.map(c => `
         <section class="cat" aria-labelledby="cat-${c.id}">
           <h2 class="cat-title" id="cat-${c.id}"><span aria-hidden="true">${c.pic}</span> ${c.title}</h2>
           <div class="cards">
-            ${c.id === 'faces' ? `<button class="card game" data-go="signals">
-              <span class="pic" aria-hidden="true">🚦</span><b>Spot the signal</b><small>Quick game${stars.signals ? ' · <span class="done">★</span>' : ''}</small>
-            </button>` : ''}
             ${STORIES.filter(s => s.cat === c.id).map(s => `
               <button class="card" data-story="${s.id}">
                 <span class="pic" aria-hidden="true">${s.pic}</span><b>${s.title}</b><small>${s.where}${stars[s.id] ? ' · <span class="done">★</span>' : ''}</small>
@@ -555,11 +711,12 @@ function showHome() {
         <span><b>For grown-ups</b><small>How to use Social Ace</small></span>
       </button>
     </div>`));
-  $view.querySelectorAll('[data-story]').forEach(b => b.onclick = () => startStory(b.dataset.story));
+  $view.querySelectorAll('[data-story]').forEach(b => b.onclick = () => { adventure = null; startStory(b.dataset.story); });
   $view.querySelector('[data-go="ladder"]').onclick = showLadder;
-  $view.querySelector('[data-go="signals"]').onclick = () => showSignals(0, 0, shuffle(SIGNALS).slice(0, 6));
+  $view.querySelectorAll('[data-game]').forEach(b => b.onclick = () => { adventure = null; GAMES.find(g => g.id === b.dataset.game).start(); });
   $view.querySelector('[data-go="grown"]').onclick = showGrown;
-  currentLine = "Hi! I'm Finn. Let's practise being brave together. Pick a story.";
+  $view.querySelector('#advBtn').onclick = showAdventure;
+  currentLine = "Hi! I'm Finn. Tap Today's adventure, or pick a game or a story.";
 }
 
 function startStory(id) {
@@ -583,7 +740,7 @@ function showStep(story, i) {
   if (step.type === 'tell' || step.type === 'done') {
     body = `<p class="say">${step.say}</p>
       ${step.type === 'done' ? '<p class="speech pop" aria-hidden="true">★</p>' : ''}
-      <button class="big" id="go">${step.type === 'done' ? 'Back home' : 'Next ➜'}</button>`;
+      <button class="big" id="go">${step.type === 'done' ? (adventure ? 'Next ➜' : 'Back home') : 'Next ➜'}</button>`;
   } else if (step.type === 'feel') {
     body = `<p class="say">${step.say}</p>
       <div class="feelings">
@@ -627,7 +784,7 @@ function showStep(story, i) {
   if (step.type === 'done') {
     const stars = store('stars') || {};
     stars[story.id] = 1; store('stars', stars);
-    go.onclick = showHome;
+    go.onclick = finished;
   } else if (step.type === 'feel') {
     $view.querySelectorAll('.feel').forEach(b => b.onclick = () => {
       $view.querySelectorAll('.feel').forEach(x => x.classList.remove('picked-good'));
@@ -643,9 +800,11 @@ function showStep(story, i) {
         chosenGame = o.set;
         $view.querySelectorAll('.choice').forEach(x => x.classList.remove('picked-good'));
       }
+      $view.querySelectorAll('.choice').forEach(x => x.classList.remove('picked-try'));
       b.classList.add(o.good ? 'picked-good' : 'picked-try');
       reply.textContent = o.reply; reply.hidden = false;
       go.hidden = !o.good;
+      if (step.react !== false) react(step.react === 'finn' ? null : o.face || (o.good ? 'laugh' : 'sad'), o.finn || (o.good ? 'big' : 'wobbly'));
       speak(o.reply);
     });
     go.onclick = next;
@@ -675,11 +834,11 @@ function showSignals(i, score, rounds) {
       <div class="stage">${scene('park', 'big', '')}
         <div class="talk"><p class="say">You spotted ${score} out of ${rounds.length} signals!</p>
         <p class="speech pop" aria-hidden="true">★</p>
-        <div class="row"><button class="big alt" id="again">Play again</button><button class="big" id="home">Back home</button></div></div>
+        <div class="row"><button class="big alt" id="again">Play again</button><button class="big" id="home">${adventure ? 'Next ➜' : 'Back home'}</button></div></div>
       </div>`));
     speak(`You spotted ${score} out of ${rounds.length} signals! You earned a star!`);
     $view.querySelector('#again').onclick = () => showSignals(0, 0, shuffle(SIGNALS).slice(0, 6));
-    $view.querySelector('#home').onclick = showHome;
+    finishButtons();
     return;
   }
   const r = rounds[i];
@@ -688,7 +847,7 @@ function showSignals(i, score, rounds) {
     <div class="stage">
       <svg class="scene" viewBox="0 0 600 260" role="img" aria-label="Sam">
         <rect width="600" height="260" fill="#bfe6fb"/><rect y="200" width="600" height="60" fill="#8ccf6e"/>
-        ${kid(300, '#2a9d8f', '#1c1c1c', r.mood, 1.25)}
+        ${kid(300, '#2a9d8f', '#1c1c1c', r.mood, 1.7)}
       </svg>
       <div class="talk">
         <p class="say">${r.line}</p>
@@ -812,5 +971,6 @@ function showGrown() {
 document.addEventListener('DOMContentLoaded', showHome);
 </script>
 <script src="stories.js"></script>
+<script src="games.js"></script>
 </body>
 </html>
