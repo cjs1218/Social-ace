@@ -35,6 +35,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
   margin: 0; background: var(--sky); color: var(--ink);
@@ -98,6 +99,18 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .tile .pic { font-size: 46px; line-height: 1; width: 56px; text-align: center; flex: none; }
 .tile b { font-family: var(--display); font-size: 26px; font-weight: 600; display: block; line-height: 1.2; }
 .tile small { color: var(--soft); font-size: 16px; }
+.cat { display: flex; flex-direction: column; gap: 10px; }
+.cat-title { font-family: var(--display); font-weight: 600; font-size: 24px; margin: 10px 0 0; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+  background: var(--paper); border: 3px solid var(--line); border-radius: 22px; padding: 14px; min-height: 132px; min-width: 0;
+}
+.card .pic { font-size: 36px; line-height: 1.1; }
+.card b { font-family: var(--display); font-size: 20px; font-weight: 600; line-height: 1.2; }
+.card small { color: var(--soft); font-size: 14px; line-height: 1.35; }
+.card.game { background: var(--tint); }
+.done { color: var(--fox); font-weight: 600; }
 .stars { color: var(--fox); font-family: var(--display); font-size: 20px; }
 .ladder { display: flex; flex-direction: column-reverse; gap: 10px; }
 .rung {
@@ -201,10 +214,16 @@ function fox(mood) {
     happy: '<path d="M88 132 q12 12 24 0" stroke="#3b2414" stroke-width="4" fill="none" stroke-linecap="round"/>',
     big:   '<path d="M84 128 q16 22 32 0 z" fill="#3b2414"/>',
     wobbly:'<path d="M86 134 q5 -5 10 0 t10 0 t10 0" stroke="#3b2414" stroke-width="4" fill="none" stroke-linecap="round"/>',
-    calm:  '<path d="M90 133 h20" stroke="#3b2414" stroke-width="4" stroke-linecap="round"/>'
+    calm:  '<path d="M90 133 h20" stroke="#3b2414" stroke-width="4" stroke-linecap="round"/>',
+    cross: '<path d="M88 138 q12 -10 24 0" stroke="#3b2414" stroke-width="4" fill="none" stroke-linecap="round"/>',
+    sad:   '<path d="M88 138 q12 -10 24 0" stroke="#3b2414" stroke-width="4" fill="none" stroke-linecap="round"/>'
   };
   const brows = mood === 'wobbly'
-    ? '<path d="M70 92 l14 4 M130 92 l-14 4" stroke="#3b2414" stroke-width="4" stroke-linecap="round"/>' : '';
+    ? '<path d="M70 92 l14 4 M130 92 l-14 4" stroke="#3b2414" stroke-width="4" stroke-linecap="round"/>'
+    : mood === 'cross'
+    ? '<path d="M70 88 l16 8 M130 88 l-16 8" stroke="#3b2414" stroke-width="5" stroke-linecap="round"/><path d="M40 60 l-8 -10 M160 60 l8 -10 M46 48 l-4 -14" stroke="#e5484d" stroke-width="4" stroke-linecap="round"/>'
+    : mood === 'sad'
+    ? '<path d="M70 96 l14 -5 M130 96 l-14 -5" stroke="#3b2414" stroke-width="4" stroke-linecap="round"/><path d="M122 112 q4 10 0 13 q-4 -3 0 -13" fill="#6ec3f0"/>' : '';
   return `<g>
     <path d="M52 70 L66 18 L92 58 Z" fill="var(--fox)"/><path d="M60 62 L67 32 L82 56 Z" fill="#ffe3cc"/>
     <path d="M148 70 L134 18 L108 58 Z" fill="var(--fox)"/><path d="M140 62 L133 32 L118 56 Z" fill="#ffe3cc"/>
@@ -250,7 +269,20 @@ function scene(place, mood, extra) {
              <rect y="200" width="600" height="60" fill="#d6b48a"/><rect x="40" y="40" width="120" height="90" rx="6" fill="#9fd3f0" stroke="#fff" stroke-width="6"/>`,
     lunch: `<rect width="600" height="260" fill="#e4e0f7"/><rect x="30" y="30" width="540" height="12" fill="#c9c2ee"/>
             <rect y="196" width="600" height="64" fill="#b78f6a"/><rect y="190" width="600" height="12" rx="4" fill="#9c7653"/>
-            <rect x="330" y="176" width="44" height="16" rx="4" fill="#ffd45a"/>`
+            <rect x="330" y="176" width="44" height="16" rx="4" fill="#ffd45a"/>`,
+    party: `<rect width="600" height="260" fill="#fde2ec"/>
+            <path d="M0 30 Q150 70 300 30 T600 30" stroke="#b05" stroke-width="2" fill="none"/>
+            ${[20,80,140,200,260,320,380,440,500,560].map((x, k) => `<path d="M${x} ${38 + Math.sin(x / 95) * 16} l14 0 l-7 18 z" fill="${['#ffc94a','#4fc58c','#5aa0f0','#f07c2a'][k % 4]}"/>`).join('')}
+            <circle cx="560" cy="110" r="18" fill="#5aa0f0"/><path d="M560 128 v40" stroke="#888" stroke-width="2"/>
+            <circle cx="40" cy="120" r="18" fill="#f07c2a"/><path d="M40 138 v40" stroke="#888" stroke-width="2"/>
+            <rect y="200" width="600" height="60" fill="#e7c9a6"/>`,
+    club:  `<rect width="600" height="260" fill="#e3edf2"/><rect x="20" y="30" width="80" height="160" fill="#cfdce4"/>
+            <path d="M20 60 h80 M20 90 h80 M20 120 h80 M20 150 h80" stroke="#b5c6d1" stroke-width="4"/>
+            <rect y="196" width="600" height="64" fill="#4f86c6"/><rect x="200" y="196" width="400" height="64" fill="#6aa0dc"/>`,
+    home:  `<rect width="600" height="260" fill="#f3ead9"/><rect x="380" y="40" width="150" height="100" rx="6" fill="#bfe6fb" stroke="#fff" stroke-width="8"/>
+            <path d="M455 40 v100 M380 90 h150" stroke="#fff" stroke-width="6"/>
+            <rect x="20" y="120" width="120" height="70" rx="14" fill="#c9845a"/><rect x="30" y="100" width="100" height="40" rx="12" fill="#d99a72"/>
+            <rect y="196" width="600" height="64" fill="#b98f6a"/>`
   }[place];
   return `<svg class="scene" viewBox="0 0 600 260" role="img" aria-label="Finn the fox">
     ${bg}${extra || ''}<g transform="translate(150 56) scale(1)">${fox(mood)}</g></svg>`;
@@ -264,7 +296,7 @@ const sam = mood => kid(470, '#2a9d8f', '#1c1c1c', mood);
 /* ---------- stories ---------- */
 const STORIES = [
   {
-    id: 'park', pic: '⚽', title: 'Joining a game', where: 'At the park', place: 'park', extra: parkKids,
+    id: 'park', cat: 'join', pic: '⚽', title: 'Joining a game', where: 'At the park', place: 'park', extra: parkKids,
     steps: [
       { type: 'tell', mood: 'calm', say: 'This is Finn. Finn is at the park. Some children are playing football.' },
       { type: 'feel', say: 'Finn wants to play, but he does not know them. How do you think Finn feels?',
@@ -284,7 +316,7 @@ const STORIES = [
     ]
   },
   {
-    id: 'hiback', pic: '👋', title: 'Saying hi back', where: 'At the school gate', place: 'school', extra: sam('laugh'),
+    id: 'hiback', cat: 'hi', pic: '👋', title: 'Saying hi back', where: 'At the school gate', place: 'school', extra: sam('laugh'),
     steps: [
       { type: 'tell', mood: 'calm', say: 'It is the morning at school. Sam waves and says: Hi Finn!' },
       { type: 'tell', mood: 'wobbly', extra: sam('meh'), say: 'Finn feels shy. He looks at the floor and says hi really fast. Sam walks away.' },
@@ -308,7 +340,7 @@ const STORIES = [
     ]
   },
   {
-    id: 'notfootball', pic: '🃏', title: 'Not football today', where: 'At break time', place: 'park', extra: kid(470, '#2a9d8f', '#1c1c1c', 'laugh') + ball,
+    id: 'notfootball', cat: 'join', pic: '🃏', title: 'Not football today', where: 'At break time', place: 'park', extra: kid(470, '#2a9d8f', '#1c1c1c', 'laugh') + ball,
     steps: [
       { type: 'tell', mood: 'calm', say: 'It is break time. Sam runs over. Finn! Come and play football!' },
       { type: 'feel', say: 'Finn does not like football. How might he feel?',
@@ -340,7 +372,7 @@ const STORIES = [
     ]
   },
   {
-    id: 'class', pic: '🏫', title: 'Saying hello', where: 'In a new class', place: 'school', extra: classKids,
+    id: 'class', cat: 'hi', pic: '🏫', title: 'Saying hello', where: 'In a new class', place: 'school', extra: classKids,
     steps: [
       { type: 'tell', mood: 'calm', say: 'Finn is in a new class today. He sits next to a boy called Sam.' },
       { type: 'feel', say: 'How do you think Finn feels on his first day?',
@@ -358,7 +390,7 @@ const STORIES = [
     ]
   },
   {
-    id: 'funny', pic: '😜', title: 'Is it still funny?', where: 'At lunch', place: 'lunch', extra: sam('laugh'),
+    id: 'funny', cat: 'faces', pic: '😜', title: 'Is it still funny?', where: 'At lunch', place: 'lunch', extra: sam('laugh'),
     steps: [
       { type: 'tell', mood: 'big', say: 'Finn is having lunch with Sam. Finn pulls a silly face. Sam laughs. Fun!' },
       { type: 'tell', mood: 'happy', extra: sam('meh'), say: 'Finn keeps going. He pokes Sam and flicks his crisps. Sam is not laughing now.' },
@@ -405,6 +437,14 @@ const LADDER = [
   'In a game, stop and ask: Is this still fun?'
 ];
 
+const CATS = [
+  { id: 'hi', pic: '👋', title: 'Saying hi' },
+  { id: 'join', pic: '🙋', title: 'Joining in' },
+  { id: 'faces', pic: '👀', title: 'Reading faces' },
+  { id: 'friends', pic: '🤝', title: 'Keeping friends' },
+  { id: 'tricky', pic: '🧭', title: 'Tricky moments' }
+];
+
 /* ---------- screens ---------- */
 function showHome() {
   homeBtn.hidden = true;
@@ -417,15 +457,20 @@ function showHome() {
         <div class="talk"><p class="say">Hi! I'm Finn. Let's practise being brave together.</p>
         <p class="stars" aria-label="${total} stars">★ ${total} star${total === 1 ? '' : 's'}</p></div>
       </div>
-      ${STORIES.map(s => `
-        <button class="tile" data-story="${s.id}">
-          <span class="pic" aria-hidden="true">${s.pic}</span>
-          <span><b>${s.title}</b><small>${s.where}${stars[s.id] ? ' · ★ done' : ''}</small></span>
-        </button>`).join('')}
-      <button class="tile" data-go="signals">
-        <span class="pic" aria-hidden="true">🚦</span>
-        <span><b>Spot the signal</b><small>Quick game: keep playing or stop?${stars.signals ? ' · ★ done' : ''}</small></span>
-      </button>
+      ${CATS.map(c => `
+        <section class="cat" aria-labelledby="cat-${c.id}">
+          <h2 class="cat-title" id="cat-${c.id}"><span aria-hidden="true">${c.pic}</span> ${c.title}</h2>
+          <div class="cards">
+            ${c.id === 'faces' ? `<button class="card game" data-go="signals">
+              <span class="pic" aria-hidden="true">🚦</span><b>Spot the signal</b><small>Quick game${stars.signals ? ' · <span class="done">★</span>' : ''}</small>
+            </button>` : ''}
+            ${STORIES.filter(s => s.cat === c.id).map(s => `
+              <button class="card" data-story="${s.id}">
+                <span class="pic" aria-hidden="true">${s.pic}</span><b>${s.title}</b><small>${s.where}${stars[s.id] ? ' · <span class="done">★</span>' : ''}</small>
+              </button>`).join('')}
+          </div>
+        </section>`).join('')}
+      <h2 class="cat-title"><span aria-hidden="true">🌟</span> Real life</h2>
       <button class="tile" data-go="ladder">
         <span class="pic" aria-hidden="true">🪜</span>
         <span><b>Brave ladder</b><small>Real-life missions · ${ladder.length} of ${LADDER.length}</small></span>
@@ -659,7 +704,8 @@ function showGrown() {
   };
 }
 
-showHome();
+document.addEventListener('DOMContentLoaded', showHome);
 </script>
+<script src="stories.js"></script>
 </body>
 </html>

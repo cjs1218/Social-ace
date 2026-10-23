@@ -3,7 +3,7 @@
 A simple web prototype to help a shy 7-year-old practise social situations, designed for children who find reading hard.
 
 - **Audio-first:** every screen is read aloud (tap the speaker to hear it again).
-- **Stories with Finn the fox:** "Joining a game" (park), "Saying hi back" (school gate), "Not football today" (break time), "Saying hello" (new class) and "Is it still funny?" (lunch), with feelings checks, gentle choices, "brave words" to say out loud and a Stop, Look, Think traffic light.
+- **23 stories with Finn the fox**, grouped into Saying hi, Joining in, Reading faces, Keeping friends and Tricky moments. Each has gentle choices, a tap-through "recipe" and brave words to say out loud.
 - **Spot the signal:** a quick game of reading another child's face and body language: keep playing, or stop and check?
 - **Brave ladder:** real-life missions to tick off with a grown-up.
 - **For grown-ups:** tips on how to use it.
@@ -16,4 +16,4 @@ It is a single file. Open `index.html` in any browser, or turn on GitHub Pages (
 
 ## Adding a story
 
-Stories live in the `STORIES` list in `index.html`. Each story is a list of steps: `tell`, `feel`, `choose`, `practise` and `done`.
+The first five stories are in `index.html`; the rest are in `stories.js`. Each story is a list of steps: `tell`, `feel`, `choose`, `practise` and `done`.
