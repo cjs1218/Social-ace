@@ -123,6 +123,20 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .progress { display: flex; gap: 8px; justify-content: center; }
 .progress i { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
 .progress i.on { background: var(--fox); }
+.go-btn { background: var(--leaf); }
+.stop-btn { background: #d9534f; }
+.lights { display: grid; gap: 10px; }
+.light {
+  display: flex; align-items: center; gap: 14px; text-align: left; min-height: 72px;
+  padding: 10px 16px; border-radius: 20px; border: 3px solid var(--line); background: var(--tint); font-size: 17px;
+}
+.light b { display: block; font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1.2; }
+.light:disabled { opacity: .45; cursor: default; }
+.light .bulb { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--line); transition: background .2s; }
+.light.red.lit .bulb { background: #e5484d; }
+.light.amber.lit .bulb { background: #f5a524; }
+.light.green.lit .bulb { background: #30a46c; }
+.light.lit { border-color: var(--ink); }
 @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .pop { animation: pop .5s ease-out; }
 @media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
@@ -204,13 +218,24 @@ function fox(mood) {
   </g>`;
 }
 
-function kid(x, color, hair) {
-  return `<g transform="translate(${x} 0)">
+function kid(x, color, hair, mood = 'happy', s = 1) {
+  const mouth = {
+    happy: '<path d="M-6 128 q6 6 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+    laugh: '<path d="M-8 126 q8 12 16 0 z" fill="#3b2414"/>',
+    cross: '<path d="M-6 131 q6 -5 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+    sad:   '<path d="M-6 132 q6 -6 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+    meh:   '<path d="M-5 129 h10" stroke="#3b2414" stroke-width="2.5" stroke-linecap="round"/>'
+  }[mood];
+  const brows = mood === 'cross' ? '<path d="M-12 111 l8 4 M12 111 l-8 4" stroke="#3b2414" stroke-width="2.5" stroke-linecap="round"/>'
+    : mood === 'sad' ? '<path d="M-12 115 l8 -3 M12 115 l-8 -3" stroke="#3b2414" stroke-width="2.5" stroke-linecap="round"/><path d="M8 124 q2 6 0 8 q-2 -2 0 -8" fill="#6ec3f0"/>' : '';
+  const arms = mood === 'cross' ? `<rect x="-24" y="156" width="48" height="10" rx="5" fill="#f2c9a5"/>`
+    : mood === 'laugh' ? '<path d="M-22 146 l-14 -18 M22 146 l14 -18" stroke="#f2c9a5" stroke-width="8" stroke-linecap="round"/>' : '';
+  return `<g transform="translate(${x} ${200 - 200 * s}) scale(${s})">
     <circle cx="0" cy="118" r="20" fill="#f2c9a5"/>
     <path d="M-20 112 q20 -26 40 0" fill="${hair}"/>
     <circle cx="-7" cy="120" r="2.6" fill="#3b2414"/><circle cx="7" cy="120" r="2.6" fill="#3b2414"/>
-    <path d="M-6 128 q6 6 12 0" stroke="#3b2414" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M-22 140 h44 l6 60 h-56 z" fill="${color}"/>
+    ${brows}${mouth}
+    <path d="M-22 140 h44 l6 60 h-56 z" fill="${color}"/>${arms}
   </g>`;
 }
 
@@ -220,7 +245,10 @@ function scene(place, mood, extra) {
            <rect y="190" width="600" height="70" fill="#8ccf6e"/><circle cx="60" cy="150" r="48" fill="#5fae4a"/><rect x="54" y="160" width="12" height="40" fill="#8a5a33"/>`,
     school: `<rect width="600" height="260" fill="#fbe9c9"/><rect x="250" y="34" width="220" height="110" rx="8" fill="#2f5d50"/>
              <path d="M270 70 h60 M270 96 h110" stroke="#e8f2ee" stroke-width="5" stroke-linecap="round"/>
-             <rect y="200" width="600" height="60" fill="#d6b48a"/><rect x="40" y="40" width="120" height="90" rx="6" fill="#9fd3f0" stroke="#fff" stroke-width="6"/>`
+             <rect y="200" width="600" height="60" fill="#d6b48a"/><rect x="40" y="40" width="120" height="90" rx="6" fill="#9fd3f0" stroke="#fff" stroke-width="6"/>`,
+    lunch: `<rect width="600" height="260" fill="#e4e0f7"/><rect x="30" y="30" width="540" height="12" fill="#c9c2ee"/>
+            <rect y="196" width="600" height="64" fill="#b78f6a"/><rect y="190" width="600" height="12" rx="4" fill="#9c7653"/>
+            <rect x="330" y="176" width="44" height="16" rx="4" fill="#ffd45a"/>`
   }[place];
   return `<svg class="scene" viewBox="0 0 600 260" role="img" aria-label="Finn the fox">
     ${bg}${extra || ''}<g transform="translate(150 56) scale(1)">${fox(mood)}</g></svg>`;
@@ -229,6 +257,7 @@ function scene(place, mood, extra) {
 const ball = '<circle cx="470" cy="206" r="16" fill="#fff" stroke="#333" stroke-width="3"/>';
 const parkKids = kid(400, '#e0533d', '#4a2f1d') + kid(520, '#7a4fd1', '#e8b545') + ball;
 const classKids = kid(470, '#2a9d8f', '#1c1c1c') + kid(550, '#e76f51', '#a0522d');
+const sam = mood => kid(470, '#2a9d8f', '#1c1c1c', mood);
 
 /* ---------- stories ---------- */
 const STORIES = [
@@ -269,7 +298,38 @@ const STORIES = [
       ]},
       { type: 'done', mood: 'big', say: 'Finn said hello to a new friend. Well done for helping! You earned a star!' }
     ]
+  },
+  {
+    id: 'funny', pic: '😜', title: 'Is it still funny?', where: 'At lunch', place: 'lunch', extra: sam('laugh'),
+    steps: [
+      { type: 'tell', mood: 'big', say: 'Finn is having lunch with Sam. Finn pulls a silly face. Sam laughs. Fun!' },
+      { type: 'tell', mood: 'happy', extra: sam('meh'), say: 'Finn keeps going. He pokes Sam and flicks his crisps. Sam is not laughing now.' },
+      { type: 'choose', mood: 'happy', extra: sam('cross'), say: 'Look at Sam. Is Sam still having fun?', options: [
+        { pic: '✋', text: 'No. Sam looks cross', good: true, reply: 'Well spotted! His eyebrows are down and his arms are crossed. That means stop.' },
+        { pic: '😂', text: 'Yes, keep going', reply: 'Look again. Sam is not smiling, and his arms are crossed. If only one person is laughing, it is not a joke any more.' }
+      ]},
+      { type: 'lights', mood: 'calm', extra: sam('cross'), say: 'When a game stops being fun, use your traffic light. Tap red, then amber, then green.' },
+      { type: 'choose', mood: 'wobbly', extra: sam('cross'), say: 'What could Finn say to Sam?', options: [
+        { pic: '🤝', text: 'Sorry, I\'ll stop. Want to play a game?', good: true, reply: 'Yes! Stopping and saying sorry fixes things fast.' },
+        { pic: '🙃', text: 'It\'s only a joke!', reply: 'Finn thinks it is a joke, but Sam does not. Let us try another way.' },
+        { pic: '👉', text: 'Poke him again', reply: 'That will make Sam more cross. Let us try another way.' }
+      ]},
+      { type: 'tell', mood: 'big', extra: sam('happy'), say: 'Sam smiles. They play a game together. Finn fixed it!' },
+      { type: 'done', mood: 'big', extra: sam('happy'), say: 'Stopping when someone is not having fun is a super skill. You earned a star!' }
+    ]
   }
+];
+
+/* Spot the signal: quick rounds, instant feedback */
+const SIGNALS = [
+  { mood: 'laugh', line: 'Sam is laughing and throws the ball back to you.', go: true },
+  { mood: 'cross', line: 'Sam crosses his arms and says, stop it.', go: false },
+  { mood: 'happy', line: 'Sam smiles and says, again! Do it again!', go: true },
+  { mood: 'sad', line: 'Sam looks sad and goes quiet.', go: false },
+  { mood: 'meh', line: 'Sam turns away and talks to someone else.', go: false },
+  { mood: 'laugh', line: 'Sam is laughing and copying your silly dance.', go: true },
+  { mood: 'cross', line: 'Sam\'s face goes red and he moves away from you.', go: false },
+  { mood: 'happy', line: 'Sam asks, can I have a turn?', go: true }
 ];
 
 const LADDER = [
@@ -277,7 +337,8 @@ const LADDER = [
   'Say hi to a shop helper or librarian',
   'Ask a grown-up a question at a club',
   'Say hi to a child in your class you don\'t play with yet',
-  'Ask a child: Can I play?'
+  'Ask a child: Can I play?',
+  'In a game, stop and ask: Is this still fun?'
 ];
 
 /* ---------- screens ---------- */
@@ -297,6 +358,10 @@ function showHome() {
           <span class="pic" aria-hidden="true">${s.pic}</span>
           <span><b>${s.title}</b><small>${s.where}${stars[s.id] ? ' · ★ done' : ''}</small></span>
         </button>`).join('')}
+      <button class="tile" data-go="signals">
+        <span class="pic" aria-hidden="true">🚦</span>
+        <span><b>Spot the signal</b><small>Quick game: keep playing or stop?${stars.signals ? ' · ★ done' : ''}</small></span>
+      </button>
       <button class="tile" data-go="ladder">
         <span class="pic" aria-hidden="true">🪜</span>
         <span><b>Brave ladder</b><small>Real-life missions · ${ladder.length} of ${LADDER.length}</small></span>
@@ -308,6 +373,7 @@ function showHome() {
     </div>`));
   $view.querySelectorAll('[data-story]').forEach(b => b.onclick = () => startStory(b.dataset.story));
   $view.querySelector('[data-go="ladder"]').onclick = showLadder;
+  $view.querySelector('[data-go="signals"]').onclick = () => showSignals(0, 0, shuffle(SIGNALS).slice(0, 6));
   $view.querySelector('[data-go="grown"]').onclick = showGrown;
   currentLine = "Hi! I'm Finn. Let's practise being brave together. Pick a story.";
 }
@@ -344,6 +410,14 @@ function showStep(story, i) {
       </div>
       <p class="say" id="reply" hidden></p>
       <button class="big" id="go" hidden>Next ➜</button>`;
+  } else if (step.type === 'lights') {
+    body = `<p class="say">${step.say}</p>
+      <div class="lights">
+        <button class="light red" data-k="0"><span class="bulb"></span><span><b>Stop</b>Keep my hands still</span></button>
+        <button class="light amber" data-k="1" disabled><span class="bulb"></span><span><b>Look</b>At their face and body</span></button>
+        <button class="light green" data-k="2" disabled><span class="bulb"></span><span><b>Think</b>Are they having fun?</span></button>
+      </div>
+      <button class="big" id="go" hidden>Next ➜</button>`;
   } else if (step.type === 'practise') {
     body = `<p class="say">Finn's brave words:</p>
       <p class="speech">${step.words}</p>
@@ -354,7 +428,7 @@ function showStep(story, i) {
   }
 
   $view.replaceChildren(el(`
-    <div class="stage">${scene(story.place, mood, story.extra)}
+    <div class="stage">${scene(story.place, mood, step.extra || story.extra)}
       <div class="talk">${body}<div class="progress" aria-hidden="true">${dots}</div></div>
     </div>`));
   speak(step.say);
@@ -383,12 +457,71 @@ function showStep(story, i) {
       speak(o.reply);
     });
     go.onclick = next;
+  } else if (step.type === 'lights') {
+    const lines = ['Stop. Keep my hands still.', 'Look at their face and body.', 'Think. Are they having fun?'];
+    const btns = $view.querySelectorAll('.light');
+    btns.forEach(b => b.onclick = () => {
+      const k = +b.dataset.k;
+      b.classList.add('lit'); speak(lines[k]);
+      if (btns[k + 1]) btns[k + 1].disabled = false; else go.hidden = false;
+    });
+    go.onclick = next;
   } else if (step.type === 'practise') {
     $view.querySelector('#hear').onclick = () => speak(step.words);
     go.onclick = () => { speak('Brilliant! That was brave.'); setTimeout(next, 1400); };
   } else {
     go.onclick = next;
   }
+}
+
+function shuffle(a) { return a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(p => p[1]); }
+
+function showSignals(i, score, rounds) {
+  homeBtn.hidden = false;
+  if (i >= rounds.length) {
+    const stars = store('stars') || {}; stars.signals = 1; store('stars', stars);
+    $view.replaceChildren(el(`
+      <div class="stage">${scene('park', 'big', '')}
+        <div class="talk"><p class="say">You spotted ${score} out of ${rounds.length} signals!</p>
+        <p class="speech pop" aria-hidden="true">★</p>
+        <div class="row"><button class="big alt" id="again">Play again</button><button class="big" id="home">Back home</button></div></div>
+      </div>`));
+    speak(`You spotted ${score} out of ${rounds.length} signals! You earned a star!`);
+    $view.querySelector('#again').onclick = () => showSignals(0, 0, shuffle(SIGNALS).slice(0, 6));
+    $view.querySelector('#home').onclick = showHome;
+    return;
+  }
+  const r = rounds[i];
+  const dots = rounds.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('');
+  $view.replaceChildren(el(`
+    <div class="stage">
+      <svg class="scene" viewBox="0 0 600 260" role="img" aria-label="Sam">
+        <rect width="600" height="260" fill="#bfe6fb"/><rect y="200" width="600" height="60" fill="#8ccf6e"/>
+        ${kid(300, '#2a9d8f', '#1c1c1c', r.mood, 1.25)}
+      </svg>
+      <div class="talk">
+        <p class="say">${r.line}</p>
+        <div class="row">
+          <button class="big go-btn" data-a="1">👍 Keep playing</button>
+          <button class="big stop-btn" data-a="0">✋ Stop and check</button>
+        </div>
+        <p class="say" id="reply" hidden></p>
+        <button class="big alt" id="go" hidden>Next ➜</button>
+        <div class="progress" aria-hidden="true">${dots}</div>
+      </div>
+    </div>`));
+  speak(r.line + ' Keep playing, or stop and check?');
+  const reply = $view.querySelector('#reply'), go = $view.querySelector('#go');
+  let answered = false;
+  $view.querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
+    if (answered) return; answered = true;
+    const right = (b.dataset.a === '1') === r.go;
+    const why = r.go ? 'Sam is having fun.' : 'Sam is not having fun. Stop and ask: are you OK?';
+    reply.textContent = (right ? 'Yes! ' : 'Not this time. ') + why;
+    reply.hidden = false; go.hidden = false;
+    speak(reply.textContent);
+    go.onclick = () => showSignals(i + 1, score + (right ? 1 : 0), rounds);
+  });
 }
 
 function showLadder() {
@@ -431,6 +564,8 @@ function showGrown() {
         <li>Before a party or new club, play the matching story that day.</li>
         <li>Use the Brave ladder for real-life practice. Start small and praise the effort, not the outcome.</li>
       </ul>
+      <h3>If he winds other children up</h3>
+      <p>Winding people up is often a way of trying to connect when starting a conversation feels hard. "Is it still funny?" and "Spot the signal" practise noticing when the other child has stopped enjoying it. Use the same words at home: "Stop, look, think. Is your friend still having fun?"</p>
       <h3>About this prototype</h3>
       <p>No sign-in, no ads, no chat. Progress is kept only on this device.</p>
       <button class="small-btn" id="reset">Reset stars and ladder</button>
