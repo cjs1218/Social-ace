@@ -16,7 +16,7 @@ const GAMES = [
 
 function gameOver(id, line, again) {
   clearGameTimers();
-  const stars = store('stars') || {}; stars[id] = 1; store('stars', stars);
+  const stars = store('stars') || {}; stars[id] = 1; store('stars', stars); earn(1);
   $view.replaceChildren(el(`
     <div class="stage">${scene('park', 'big', '')}
       <div class="talk"><p class="say">${line}</p>

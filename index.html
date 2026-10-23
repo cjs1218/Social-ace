@@ -165,6 +165,37 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .light.step .bulb { display: grid; place-items: center; font-size: 26px; opacity: .5; }
 .light.step.lit .bulb { background: var(--sun); opacity: 1; }
 .light.lit { border-color: var(--ink); }
+.den-btn {
+  display: flex; align-items: center; gap: 14px; text-align: left; width: 100%;
+  background: var(--tint); border: 3px solid var(--line); border-radius: 22px; padding: 10px 14px; min-height: 72px;
+}
+.den-btn .pic { font-size: 36px; flex: none; }
+.den-btn b { display: block; font-family: var(--display); font-weight: 600; font-size: 22px; line-height: 1.2; }
+.den-btn small { color: var(--soft); font-size: 15px; }
+.wallet { margin: 0; font-family: var(--display); font-weight: 600; font-size: 24px; color: var(--fox); }
+.shop { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 14px; }
+.shop-item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; min-width: 0;
+  background: var(--paper); border: 3px solid var(--line); border-radius: 20px; padding: 12px; opacity: .65;
+}
+.shop-item .pic { font-size: 32px; line-height: 1.2; }
+.shop-item b { font-family: var(--display); font-weight: 600; font-size: 18px; line-height: 1.2; }
+.shop-item small { color: var(--soft); font-size: 14px; }
+.shop-item.can { opacity: 1; border-color: var(--fox); }
+.shop-item.can small { color: var(--fox); font-weight: 600; }
+.shop-item.have { opacity: 1; border-color: var(--leaf); background: var(--tint); }
+.shop-item.have small { color: var(--leaf); font-weight: 600; }
+.den-new { animation: denpop .7s ease-out; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes denpop { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+.flame { animation: flicker .6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes flicker { to { transform: scaleY(1.12) scaleX(.94); } }
+.toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  background: var(--fox); color: #fff; font-family: var(--display); font-weight: 600; font-size: 26px;
+  padding: 10px 24px; border-radius: 999px; opacity: 0; pointer-events: none; z-index: 20;
+}
+.toast.show { animation: toast 1.8s ease-out; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, 20px); } 15%, 75% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
 .adventure-btn { background: var(--fox); font-size: 24px; min-height: 80px; text-align: left; }
 .adventure-btn span:first-child { font-size: 34px; }
 .adv-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -201,7 +232,7 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 @keyframes bounce { 30% { transform: translateY(-8%) scale(1.04); } 60% { transform: translateY(0) scale(.98); } }
 @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .pop { animation: pop .5s ease-out; }
-@media (prefers-reduced-motion: reduce) { .pop, .bounce, .bubble circle, #speakBtn.talking { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .pop, .bounce, .bubble circle, .den-new, .flame, #speakBtn.talking { animation: none; } }
 </style>
 </head>
 <body>
@@ -660,7 +691,7 @@ function finished() {
   clearGameTimers();
   if (!adventure) { showHome(); return; }
   adventure.step += 1;
-  if (adventure.step >= 3) store('advDone', (store('advDone') || 0) + 1);
+  if (adventure.step >= 3) { store('advDone', (store('advDone') || 0) + 1); earn(3); }
   store('adv', adventure);
   showAdventure();
 }
@@ -671,7 +702,7 @@ function showHome() {
   homeBtn.hidden = true;
   const stars = store('stars') || {};
   const ladder = store('ladder') || [];
-  const total = Object.values(stars).reduce((a, b) => a + b, 0) + ladder.length + (store('advDone') || 0);
+  const total = wallet(), nx = nextItem();
   adventure = null;
   $view.replaceChildren(el(`
     <div class="home-grid">
@@ -681,7 +712,10 @@ function showHome() {
           <span aria-hidden="true">🗺️</span>
           <span>${advLabel()}</span>
         </button>
-        <p class="stars" aria-label="${total} stars">★ ${total} star${total === 1 ? '' : 's'}</p></div>
+        <button class="den-btn" id="denBtn">
+          <span class="pic" aria-hidden="true">🏕️</span>
+          <span><b>Finn's den</b><small>★ ${total} to spend${nx ? ` · next: ${nx.name} (★ ${nx.cost})` : ' · den complete!'}</small></span>
+        </button></div>
       </div>
       <section class="cat" aria-labelledby="cat-games">
         <h2 class="cat-title" id="cat-games"><span aria-hidden="true">🎮</span> Games</h2>
@@ -716,6 +750,7 @@ function showHome() {
   $view.querySelectorAll('[data-game]').forEach(b => b.onclick = () => { adventure = null; GAMES.find(g => g.id === b.dataset.game).start(); });
   $view.querySelector('[data-go="grown"]').onclick = showGrown;
   $view.querySelector('#advBtn').onclick = showAdventure;
+  $view.querySelector('#denBtn').onclick = () => showDen();
   currentLine = "Hi! I'm Finn. Tap Today's adventure, or pick a game or a story.";
 }
 
@@ -783,7 +818,7 @@ function showStep(story, i) {
 
   if (step.type === 'done') {
     const stars = store('stars') || {};
-    stars[story.id] = 1; store('stars', stars);
+    stars[story.id] = 1; store('stars', stars); earn(1);
     go.onclick = finished;
   } else if (step.type === 'feel') {
     $view.querySelectorAll('.feel').forEach(b => b.onclick = () => {
@@ -829,7 +864,7 @@ function shuffle(a) { return a.map(x => [Math.random(), x]).sort((p, q) => p[0] 
 function showSignals(i, score, rounds) {
   homeBtn.hidden = false;
   if (i >= rounds.length) {
-    const stars = store('stars') || {}; stars.signals = 1; store('stars', stars);
+    const stars = store('stars') || {}; stars.signals = 1; store('stars', stars); earn(1);
     $view.replaceChildren(el(`
       <div class="stage">${scene('park', 'big', '')}
         <div class="talk"><p class="say">You spotted ${score} out of ${rounds.length} signals!</p>
@@ -895,6 +930,8 @@ function showLadder() {
     const has = list.includes(k);
     const nextList = has ? list.filter(x => x !== k) : [...list, k];
     store('ladder', nextList);
+    const paid = store('ladderPaid') || [];
+    if (!has && !paid.includes(k)) { store('ladderPaid', [...paid, k]); earn(1); }
     b.classList.toggle('done', !has);
     if (!has) { b.querySelector('.star').classList.add('pop'); speak('You did it! ' + LADDER[k] + '. That was brave!'); }
     else speak(LADDER[k]);
@@ -942,7 +979,7 @@ function showGrown() {
       <p>Winding people up is often a way of trying to connect when starting a conversation feels hard. "Is it still funny?" and "Spot the signal" practise noticing when the other child has stopped enjoying it. Use the same words at home: "Stop, look, think. Is your friend still having fun?"</p>
       <h3>About this prototype</h3>
       <p>No sign-in, no ads, no chat. Progress is kept only on this device.</p>
-      <button class="small-btn" id="reset">Reset stars and ladder</button>
+      <button class="small-btn" id="reset">Reset stars, den and ladder</button>
       <p class="hint" id="resetMsg" hidden>Progress cleared.</p>
     </div>`));
   currentLine = 'For grown-ups. Social Ace helps a shy child rehearse social moments before they happen.';
@@ -963,7 +1000,8 @@ function showGrown() {
   $view.querySelector('#tryVoice').onclick = () => speak('Hi! I\'m Finn. Let\'s be brave together!');
 
   $view.querySelector('#reset').onclick = () => {
-    store('stars', {}); store('ladder', []);
+    ['stars', 'ladder', 'ladderPaid', 'den'].forEach(k => store(k, k === 'stars' ? {} : []));
+    store('earned', 0); store('advDone', 0); store('adv', null);
     $view.querySelector('#resetMsg').hidden = false;
   };
 }
@@ -972,5 +1010,6 @@ document.addEventListener('DOMContentLoaded', showHome);
 </script>
 <script src="stories.js"></script>
 <script src="games.js"></script>
+<script src="den.js"></script>
 </body>
 </html>

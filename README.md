@@ -7,6 +7,7 @@ A simple web prototype to help a shy 7-year-old practise social situations, desi
 - **Today's adventure:** one tap gives a story, a game and a real-life mission, so there's no choosing.
 - **Faces that react:** the other children (and Finn) change expression when a choice is picked.
 - **Games:** Spot the signal, Face match, Arm's length and Wait for the gap (in `games.js`).
+- **Finn's den:** every story, game, mission and adventure earns stars to spend on 13 den parts, from cushions to a rope swing (in `den.js`).
 - **Brave ladder:** real-life missions to tick off with a grown-up.
 - **For grown-ups:** tips on how to use it.
 
