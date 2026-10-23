@@ -193,3 +193,61 @@ function waitGap(i, score) {
   };
   startTalking();
 }
+
+/* ---------- Brave thoughts: swap the wobbly thought for a brave one ---------- */
+const THOUGHTS = [
+  { wobbly: 'Nobody likes me.', brave: 'Some people like me. I can find them.', other: 'I should stay on my own.' },
+  { wobbly: 'I\'ll get it wrong.', brave: 'I can try. Mistakes help me learn.', other: 'I won\'t even try.' },
+  { wobbly: 'Everyone will laugh at me.', brave: 'Most people are busy thinking about themselves.', other: 'I\'d better hide.' },
+  { wobbly: 'I\'m rubbish at everything.', brave: 'I\'m good at lots of things.', other: 'I\'m rubbish at this too.' },
+  { wobbly: 'Ben says I\'m a baby, so it must be true.', brave: 'Ben\'s words aren\'t true. I know who I am.', other: 'Maybe I am a baby.' },
+  { wobbly: 'I can\'t do it.', brave: 'I can\'t do it yet. I\'ll keep trying.', other: 'I\'ll never be able to do it.' },
+  { wobbly: 'Nobody will play with me.', brave: 'I can ask someone new.', other: 'I\'ll just stand by the wall.' },
+  { wobbly: 'If I tell a grown-up, I\'ll get into trouble.', brave: 'Telling a grown-up is brave and keeps me safe.', other: 'I\'ll keep it a secret.' }
+];
+
+function braveThoughts(i, score, rounds) {
+  homeBtn.hidden = false;
+  if (i >= rounds.length) return gameOver('bravethoughts', `You found ${score} out of ${rounds.length} brave thoughts first time!`, () => braveThoughts(0, 0, shuffle(THOUGHTS).slice(0, 5)));
+  const r = rounds[i];
+  const opts = shuffle([{ t: r.brave, good: true }, { t: r.other, good: false }]);
+  const cloud = (fill, text) => `<g class="thought-cloud">
+      <path d="M330 92 q-6 -40 36 -44 q14 -30 52 -18 q28 -22 60 2 q40 -6 44 30 q30 14 10 42 q-6 30 -46 26 q-24 18 -56 4 q-34 14 -60 -8 q-44 2 -40 -34 z" fill="${fill}"/>
+      <circle cx="320" cy="128" r="9" fill="${fill}"/><circle cx="304" cy="146" r="6" fill="${fill}"/>
+      <text x="437" y="${text ? 92 : 88}" text-anchor="middle" font-size="44">${text}</text>
+    </g>`;
+  $view.replaceChildren(el(`
+    <div class="stage">${scene('park', 'sad', cloud('#9aa7b2', '🌧️'))}
+      <div class="talk">
+        <p class="say">Wobbly thought: <b>${r.wobbly}</b></p>
+        <p class="hint">Which brave thought can Finn swap it for?</p>
+        <div class="choices">
+          ${opts.map((o, k) => `<button class="choice" data-k="${k}"><span class="pic" aria-hidden="true">${o.good ? '💭' : '💭'}</span>${o.t}</button>`).join('')}
+        </div>
+        <p class="say" id="reply" hidden></p>
+        <button class="big" id="go" hidden>Next ➜</button>
+        <div class="progress" aria-hidden="true">${dotsFor(rounds.length, i)}</div>
+      </div>
+    </div>`));
+  speak(`Finn thinks: ${r.wobbly} Which brave thought can he swap it for? ${opts[0].t} Or: ${opts[1].t}`);
+  const reply = $view.querySelector('#reply'), go = $view.querySelector('#go');
+  let firstTry = true, done = false;
+  $view.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+    if (done) return;
+    const o = opts[+b.dataset.k];
+    if (o.good) {
+      done = true; b.classList.add('picked-good');
+      const svg = $view.querySelector('.scene');
+      svg.querySelector('.thought-cloud').outerHTML = cloud('#ffe9a8', '☀️');
+      react(null, 'big');
+      reply.textContent = 'Yes! That\'s a brave thought. Finn feels stronger already.';
+      go.hidden = false;
+      go.onclick = () => braveThoughts(i + 1, score + (firstTry ? 1 : 0), rounds);
+    } else {
+      firstTry = false; b.classList.add('picked-try');
+      reply.textContent = 'That\'s still a wobbly thought. Try the other one!';
+    }
+    reply.hidden = false; speak(reply.textContent);
+  });
+}
+GAMES.push({ id: 'bravethoughts', pic: '💭', title: 'Brave thoughts', sub: 'Swap wobbly for brave', start: () => braveThoughts(0, 0, shuffle(THOUGHTS).slice(0, 5)) });

@@ -317,7 +317,7 @@ STORIES.push(
   ]
 },
 {
-  id: 'teased', cat: 'tricky', pic: '🛡️', title: 'When someone teases', where: 'In the playground', place: 'park', extra: ben('laugh'),
+  id: 'teased', cat: 'bully', pic: '🛡️', title: 'When someone teases', where: 'In the playground', place: 'park', extra: ben('laugh'),
   steps: [
     { type: 'tell', mood: 'wobbly', say: 'Ben laughs at Finn and says: You\'re rubbish at football!' },
     { type: 'choose', mood: 'sad', say: 'What could Finn do?', options: [

@@ -594,7 +594,9 @@ const LADDER = [
   'Say hi to a child in your class you don\'t play with yet',
   'At break, suggest a game you like to someone',
   'Ask a child: Can I play?',
-  'In a game, stop and ask: Is this still fun?'
+  'In a game, stop and ask: Is this still fun?',
+  'Stand tall and say good morning in a strong voice',
+  'Tell a grown-up about something that bothered you'
 ];
 
 const CATS = [
@@ -602,7 +604,9 @@ const CATS = [
   { id: 'join', pic: '🙋', title: 'Joining in' },
   { id: 'faces', pic: '👀', title: 'Reading faces' },
   { id: 'friends', pic: '🤝', title: 'Keeping friends' },
-  { id: 'tricky', pic: '🧭', title: 'Tricky moments' }
+  { id: 'brave', pic: '🦸', title: 'Feeling brave' },
+  { id: 'tricky', pic: '🧭', title: 'Tricky moments' },
+  { id: 'bully', pic: '🛡️', title: 'Dealing with bullies' }
 ];
 
 /* ---------- Today's adventure: one story, one game, one real-life mission ---------- */
@@ -760,13 +764,14 @@ function startStory(id) {
   showStep(story, 0);
 }
 
-let chosenGame = 'tag';
-const fill = s => (s || '').replace(/\{game\}/g, chosenGame);
+let vars = { game: 'tag', good: 'being kind' };
+const fill = s => (s || '').replace(/\{(\w+)\}/g, (m, k) => vars[k] !== undefined ? vars[k] : m);
 
 function showStep(story, i) {
-  if (i === 0) chosenGame = 'tag';
+  if (i === 0) vars = { game: 'tag', good: 'being kind' };
   const raw = story.steps[i];
-  const step = { ...raw, say: fill(raw.say), words: fill(raw.words) };
+  const step = { ...raw, say: fill(raw.say), words: fill(raw.words),
+    items: raw.items && raw.items.map(it => ({ ...it, title: fill(it.title), sub: fill(it.sub) })) };
   const next = () => showStep(story, i + 1);
   const dots = story.steps.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('');
   const mood = step.mood || 'calm';
@@ -832,7 +837,7 @@ function showStep(story, i) {
     $view.querySelectorAll('.choice').forEach(b => b.onclick = () => {
       const o = step.options[+b.dataset.k];
       if (o.set) {
-        chosenGame = o.set;
+        vars[o.key || 'game'] = o.set;
         $view.querySelectorAll('.choice').forEach(x => x.classList.remove('picked-good'));
       }
       $view.querySelectorAll('.choice').forEach(x => x.classList.remove('picked-try'));
@@ -975,6 +980,22 @@ function showGrown() {
       </ul>
       <h3>If he doesn't like football</h3>
       <p>"Not football today" gives him a kind way to say no and suggest something else. It also covers what to do if the other child says no. Help him by asking his teacher which classmates aren't into football, looking for lunchtime clubs, and inviting one child at a time to play at home.</p>
+      <h3>Building confidence</h3>
+      <p>"Feeling brave" practises standing tall, swapping wobbly thoughts for brave ones, and shrugging off mistakes. "Brave thoughts" is a quick game version of the thought swap.</p>
+      <ul>
+        <li>Praise effort and courage, not just results: "You said hi even though you felt shy. That was brave."</li>
+        <li>Be specific: "You waited for Sam to finish talking" means more than "good boy".</li>
+        <li>Let him see you make mistakes and say "Oops! I'll try again."</li>
+        <li>Remind him of what he's good at, especially on wobbly days.</li>
+      </ul>
+      <h3>Bullying</h3>
+      <p>"Dealing with bullies" teaches a strong calm voice ("Stop. I don't like that."), calm comebacks, keeping safe if someone hurts him, standing with a friend, and always telling a grown-up.</p>
+      <ul>
+        <li>Bullying is unkind behaviour that's repeated and on purpose. One-off fallouts are normal and are worth helping with differently.</li>
+        <li>If he tells you, stay calm, thank him for telling, and write down what happened and when.</li>
+        <li>Talk to his class teacher. Every school must have an anti-bullying policy, and you can ask to see it.</li>
+        <li>Tell him clearly that telling a grown-up is never "telling tales" when someone keeps being unkind or hurts him.</li>
+      </ul>
       <h3>If he winds other children up</h3>
       <p>Winding people up is often a way of trying to connect when starting a conversation feels hard. "Is it still funny?" and "Spot the signal" practise noticing when the other child has stopped enjoying it. Use the same words at home: "Stop, look, think. Is your friend still having fun?"</p>
       <h3>About this prototype</h3>
@@ -1009,6 +1030,7 @@ function showGrown() {
 document.addEventListener('DOMContentLoaded', showHome);
 </script>
 <script src="stories.js"></script>
+<script src="stories-brave.js"></script>
 <script src="games.js"></script>
 <script src="den.js"></script>
 </body>
