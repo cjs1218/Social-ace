@@ -19,9 +19,9 @@ STORIES.push(
     { type: 'tell', mood: 'calm', say: 'Mum\'s friend comes to visit. She smiles and asks: Hello! How old are you?' },
     { type: 'tell', mood: 'wobbly', extra: adult('meh'), say: 'Finn looks at the floor and mumbles. The grown-up can\'t hear him.' },
     { type: 'lights', mood: 'happy', say: 'Here is the answering recipe. Tap each one.', items: [
-      { cls: 'step', pic: '👀', title: 'Look up', sub: 'At their eyebrows is fine' },
+      { cls: 'step', pic: '👀', title: 'Look up', sub: 'A quick look at their face is fine' },
       { cls: 'step', pic: '🗣️', title: 'Answer clearly', sub: 'I\'m seven.' },
-      { cls: 'step', pic: '❓', title: 'Super brave: ask one back', sub: 'What\'s your name?' }
+      { cls: 'step', pic: '➕', title: 'Super brave: add one thing', sub: 'And I like Lego!' }
     ]},
     { type: 'practise', mood: 'happy', words: 'I\'m seven.', say: 'Try it. Look up and say it clearly: I\'m seven.' },
     { type: 'tell', mood: 'big', extra: adult('laugh'), say: 'The grown-up says: Wow, seven! Thank you for telling me.' },
@@ -118,7 +118,7 @@ STORIES.push(
     { type: 'lights', mood: 'calm', extra: ava('meh', 500), say: 'Here is the space check. Tap each one.', items: [
       { cls: 'step', pic: '💪', title: 'Arm\'s length', sub: 'Stretch your arm out. That\'s a good gap.' },
       { cls: 'step', pic: '🖐️', title: 'Hands to yourself', sub: 'Keep them by your side' },
-      { cls: 'step', pic: '👣', title: 'Watch their feet', sub: 'Stepping back means: more space' }
+      { cls: 'step', pic: '👀', title: 'Watch their body', sub: 'Stepping back means: more space please' }
     ]},
     { type: 'tell', mood: 'happy', extra: ava('laugh', 500), say: 'Finn steps back to arm\'s length. Ava smiles and listens to his story.' },
     star('An arm\'s length of space helps everyone feel comfy.')
@@ -180,8 +180,8 @@ STORIES.push(
       { cls: 'step', pic: '🤝', title: 'Say good game', sub: 'Good game, Ava!' }
     ]},
     { type: 'practise', mood: 'happy', words: 'Good game! Can we play again?', say: 'Say it with Finn: Good game! Can we play again?' },
-    { type: 'tell', mood: 'big', say: 'Ava smiles: Yes! Let\'s play again! People love playing with a good loser.' },
-    star('Breathe, hands still, good game. That\'s a winner move!')
+    { type: 'tell', mood: 'big', say: 'Ava smiles: Yes! Let\'s play again! Friends like playing with someone who stays calm when they lose.' },
+    star('Breathe, hands still, good game. That\'s a great way to lose!')
   ]
 },
 {
@@ -195,7 +195,7 @@ STORIES.push(
     ]},
     { type: 'practise', mood: 'happy', words: 'Can I have a go after you?', say: 'Say it with Finn: Can I have a go after you?' },
     { type: 'lights', mood: 'calm', say: 'Here are some waiting tricks. Tap each one.', items: [
-      { cls: 'step', pic: '🔢', title: 'Count to 20', sub: 'Slowly, in your head' },
+      { cls: 'step', pic: '🔢', title: 'Count to 10', sub: 'Slowly, in your head. Do it again if you need to' },
       { cls: 'step', pic: '📣', title: 'Cheer them on', sub: 'Wow, you\'re going high!' },
       { cls: 'step', pic: '🙏', title: 'Say thanks', sub: 'When it\'s your turn' }
     ]},
@@ -321,7 +321,7 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'wobbly', say: 'Ben laughs at Finn and says: You\'re rubbish at football!' },
     { type: 'choose', mood: 'sad', say: 'What could Finn do?', options: [
-      { pic: '😐', text: 'Say calmly: I like other things. Then walk away', good: true, face: 'meh', finn: 'happy', reply: 'Yes! Staying calm means the teasing doesn\'t work.' },
+      { pic: '😐', text: 'Say calmly: I like other things. Then walk away', good: true, face: 'meh', finn: 'happy', reply: 'Yes! A short, calm answer and walking away keeps you safe and stops a big row.' },
       { pic: '✊', text: 'Shout and push Ben', face: 'cross', finn: 'cross', reply: 'That would make things worse, and Finn could get into trouble. Let\'s try another way.' },
       { pic: '😢', text: 'Believe him and feel rubbish', face: 'laugh', finn: 'sad', reply: 'That\'s a hurt feeling. Ben\'s words aren\'t true. Finn is good at lots of things. Let\'s try another way.' }
     ]},
@@ -331,7 +331,7 @@ STORIES.push(
       { cls: 'step', pic: '🧑‍🏫', title: 'Tell a grown-up', sub: 'Especially if it keeps happening' }
     ]},
     { type: 'practise', mood: 'happy', words: 'I like other things. Bye!', say: 'Say it calmly with Finn: I like other things. Bye!' },
-    { type: 'tell', mood: 'happy', extra: leo('laugh'), say: 'Finn walks away and plays with Leo. He tells his teacher at the end of break.' },
+    { type: 'tell', mood: 'happy', extra: leo('laugh'), say: 'Finn walks away and plays with Leo. Because Ben keeps doing it, Finn tells his teacher at the end of break.' },
     star('Calm words and walking away. Really brave!')
   ]
 },
@@ -351,7 +351,7 @@ STORIES.push(
     ]},
     { type: 'practise', mood: 'happy', extra: ava('sad'), words: 'Sorry, Ava! Are you OK?', say: 'Say it with Finn: Sorry, Ava! Are you OK?' },
     { type: 'tell', mood: 'happy', extra: ava('happy'), say: 'Ava stops crying. She says: It\'s OK. Finn helps her up.' },
-    star('Saying sorry fixes things. Well done!')
+    star('Saying sorry helps put things right. Well done!')
   ]
 }
 

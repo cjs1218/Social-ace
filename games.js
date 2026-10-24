@@ -240,7 +240,7 @@ function braveThoughts(i, score, rounds) {
       const svg = $view.querySelector('.scene');
       svg.querySelector('.thought-cloud').outerHTML = cloud('#ffe9a8', '☀️');
       react(null, 'big');
-      reply.textContent = 'Yes! That\'s a brave thought. Finn feels stronger already.';
+      reply.textContent = 'Yes! That\'s a brave thought. It helps Finn have a go.';
       go.hidden = false;
       go.onclick = () => braveThoughts(i + 1, score + (firstTry ? 1 : 0), rounds);
     } else {

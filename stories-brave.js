@@ -9,7 +9,7 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'wobbly', say: 'Finn is going into class. His head is down, his shoulders are droopy, and his voice is very quiet.' },
     { type: 'choose', mood: 'calm', react: 'finn', say: 'Which way of standing looks brave?', options: [
-      { pic: '🦸', text: 'Head up, shoulders back, a smile', good: true, reply: 'Yes! Standing tall makes you look brave. And it can help you feel brave too.' },
+      { pic: '🦸', text: 'Head up, shoulders back, a smile', good: true, reply: 'Yes! Standing tall helps other people see you\'re friendly and ready to talk. They can hear you better too.' },
       { pic: '🫣', text: 'Head down, looking at the floor', reply: 'That\'s how Finn stands when he feels wobbly. Let\'s try standing tall.' }
     ]},
     { type: 'lights', mood: 'happy', say: 'Here is the brave body recipe. Stand up and try it! Tap each one.', items: [
@@ -19,7 +19,7 @@ STORIES.push(
     ]},
     { type: 'practise', mood: 'big', words: 'Good morning, Mrs Hill!', say: 'Stand tall and use your strong voice: Good morning, Mrs Hill!' },
     { type: 'tell', mood: 'big', extra: adult('laugh', 500), say: 'Mrs Hill smiles. Good morning, Finn! What a great strong voice!' },
-    star('Standing tall is a brave superpower.')
+    star('Standing tall helps people see and hear you.')
   ]
 },
 {
@@ -27,23 +27,23 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'wobbly', say: 'Finn is about to go into drama club for the first time. He thinks: Nobody will like me. I\'ll do it all wrong.' },
     { type: 'choose', mood: 'wobbly', react: 'finn', say: 'Do you ever have thoughts like that?', options: [
-      { pic: '🙋', text: 'Yes, lots', good: true, finn: 'happy', reply: 'Lots of people do. Here\'s a secret: wobbly thoughts are often not true.' },
-      { pic: '🤏', text: 'Sometimes', good: true, finn: 'happy', reply: 'Lots of people do. Here\'s a secret: wobbly thoughts are often not true.' },
+      { pic: '🙋', text: 'Yes, lots', good: true, finn: 'happy', reply: 'Lots of people do. Wobbly thoughts feel true, but they aren\'t always right. We can check them, like a detective.' },
+      { pic: '🤏', text: 'Sometimes', good: true, finn: 'happy', reply: 'Lots of people do. Wobbly thoughts feel true, but they aren\'t always right. We can check them, like a detective.' },
       { pic: '🙂', text: 'Not really', good: true, finn: 'happy', reply: 'Great! This trick still helps if a wobbly thought ever pops up.' }
     ]},
     { type: 'choose', mood: 'wobbly', react: 'finn', say: 'Finn can swap his wobbly thought for a brave one. Which thought is brave?', options: [
-      { pic: '💪', text: 'I can try. Trying is brave.', good: true, reply: 'Yes! That\'s a brave thought. It helps Finn feel stronger.' },
+      { pic: '💪', text: 'I can try. Trying is brave.', good: true, reply: 'Yes! That\'s a brave thought. It helps Finn have a go, even with the wobbly feeling.' },
       { pic: '😰', text: 'Everyone will laugh at me.', reply: 'That\'s another wobbly thought. Let\'s find a brave one.' },
       { pic: '🏠', text: 'I should just go home.', reply: 'That\'s a wobbly thought too. Let\'s find a brave one.' }
     ]},
     { type: 'lights', mood: 'happy', say: 'Here is the thought swap. Tap each one.', items: [
       { cls: 'step', pic: '🛑', title: 'Notice it', sub: 'That\'s a wobbly thought' },
-      { cls: 'step', pic: '🔍', title: 'Check it', sub: 'Is it really true?' },
+      { cls: 'step', pic: '🔍', title: 'Check it', sub: 'What really happened last time?' },
       { cls: 'step', pic: '💪', title: 'Swap it', sub: 'I can try. Trying is brave.' }
     ]},
     { type: 'practise', mood: 'big', words: 'I can try. Trying is brave.', say: 'Say the brave thought with Finn: I can try. Trying is brave.' },
-    { type: 'tell', mood: 'big', extra: leo('laugh', 480), say: 'Finn goes in. A boy says: Hi! Want to be in my group? The wobbly thought was wrong!' },
-    star('You can swap wobbly thoughts for brave ones.')
+    { type: 'tell', mood: 'big', extra: leo('laugh', 480), say: 'Finn goes in. He still feels a bit wobbly. After a few minutes the wobbly feeling gets smaller, and a boy says: Hi! Want to be in my group?' },
+    star('Wobbly feelings get smaller when we stay and try.')
   ]
 },
 {
@@ -61,7 +61,7 @@ STORIES.push(
       { pic: '😡', text: 'Shout: Stop laughing!', face: 'meh', finn: 'cross', reply: 'That might make a bigger fuss. Let\'s try a calm answer.' }
     ]},
     { type: 'practise', mood: 'big', words: 'Oops! I\'ll try again.', say: 'Say it with a smile: Oops! I\'ll try again.' },
-    { type: 'tell', mood: 'big', extra: adult('laugh', 500), say: 'Mrs Hill says: Great try, Finn! Mistakes help our brains grow.' },
+    { type: 'tell', mood: 'big', extra: adult('laugh', 500), say: 'Mrs Hill says: Good try, Finn! Mistakes are how we learn.' },
     star('Mistakes mean you\'re learning.')
   ]
 },
@@ -73,7 +73,7 @@ STORIES.push(
       { pic: '🧱', text: 'Building Lego', set: 'building Lego', key: 'good', good: true, reply: 'Brilliant! Building takes lots of clever thinking.' },
       { pic: '💙', text: 'Being kind', set: 'being kind', key: 'good', good: true, reply: 'Brilliant! Kindness is one of the best things to be good at.' },
       { pic: '🎨', text: 'Drawing', set: 'drawing', key: 'good', good: true, reply: 'Brilliant! Drawing is a great talent.' },
-      { pic: '🦖', text: 'Knowing facts', set: 'knowing facts', key: 'good', good: true, reply: 'Brilliant! Knowing lots of facts is amazing.' },
+      { pic: '🦖', text: 'Knowing facts', set: 'knowing facts', key: 'good', good: true, reply: 'Brilliant! Knowing lots of facts is really useful.' },
       { pic: '🏃', text: 'Running fast', set: 'running fast', key: 'good', good: true, reply: 'Brilliant! Zoom!' }
     ]},
     { type: 'practise', mood: 'big', words: 'I\'m good at {good}!', say: 'Stand tall and say it proudly: I\'m good at {good}!' },
@@ -95,7 +95,7 @@ STORIES.push(
     { type: 'feel', say: 'How do you think Finn feels?',
       reply: 'Being called names hurts. It is not Finn\'s fault, and he doesn\'t have to put up with it.' },
     { type: 'choose', mood: 'sad', say: 'What could Finn do?', options: [
-      { pic: '💪', text: 'Stand tall and say: Stop. I don\'t like that.', good: true, face: 'meh', finn: 'big', reply: 'Yes! A strong, calm voice shows Ben that Finn isn\'t scared.' },
+      { pic: '💪', text: 'Stand tall and say: Stop. I don\'t like that.', good: true, face: 'meh', finn: 'big', reply: 'Yes! A calm, strong voice is a good first thing to try. It\'s OK if Finn feels scared inside.' },
       { pic: '🗯️', text: 'Call Ben a name back', face: 'laugh', finn: 'cross', reply: 'That gives Ben what he wants, and Finn could get into trouble too. Let\'s try another way.' },
       { pic: '🤐', text: 'Keep it a secret', face: 'laugh', finn: 'sad', reply: 'Secrets like this feel heavy. Let\'s find a better way.' }
     ]},
@@ -128,7 +128,7 @@ STORIES.push(
       { cls: 'step', pic: '🔁', title: 'Keep telling', sub: 'If it doesn\'t stop, tell again' }
     ]},
     { type: 'practise', mood: 'big', words: 'Mrs Hill, Ben keeps being unkind to me. Can you help?', say: 'Say it with Finn: Mrs Hill, Ben keeps being unkind to me. Can you help?' },
-    { type: 'tell', mood: 'big', extra: adult('laugh', 500), say: 'Mrs Hill says: Thank you for telling me, Finn. That was really brave. I\'ll sort it out.' },
+    { type: 'tell', mood: 'big', extra: adult('laugh', 500), say: 'Mrs Hill says: Thank you for telling me, Finn. That was really brave. I\'m going to help. Tell me if it happens again.' },
     star('Telling a grown-up is brave and smart.')
   ]
 },
@@ -156,18 +156,18 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'calm', say: 'Ben says: Your trainers are rubbish! He wants Finn to get upset.' },
     { type: 'choose', mood: 'calm', say: 'What could Finn say?', options: [
-      { pic: '🤷', text: 'Shrug and say: OK! I like them.', good: true, face: 'meh', finn: 'happy', reply: 'Perfect! A calm, short answer takes the fun out of it for Ben.' },
-      { pic: '😢', text: 'Get really upset', face: 'laugh', finn: 'sad', reply: 'That\'s what Ben wanted. Let\'s try a calm answer.' },
-      { pic: '😡', text: 'Shout something mean back', face: 'laugh', finn: 'cross', reply: 'Ben is getting a big reaction. Let\'s try a calm answer.' }
+      { pic: '🤷', text: 'Shrug and say: OK! I like them.', good: true, face: 'meh', finn: 'happy', reply: 'Good choice! A short, calm answer, then walking away, means Finn doesn\'t get pulled into an argument.' },
+      { pic: '😢', text: 'Get really upset', face: 'laugh', finn: 'sad', reply: 'It\'s OK to feel upset. Your feelings matter. Let\'s practise a calm answer, then Finn can tell a grown-up how he feels.' },
+      { pic: '😡', text: 'Shout something mean back', face: 'laugh', finn: 'cross', reply: 'Shouting back can start a bigger fight and get Finn into trouble. Let\'s try a calm answer.' }
     ]},
     { type: 'lights', mood: 'happy', say: 'Here are some calm comebacks. Tap each one.', items: [
-      { cls: 'step', pic: '🤷', title: 'OK!', sub: 'Then walk away' },
-      { cls: 'step', pic: '😐', title: 'That\'s your opinion.', sub: 'Calm and bored' },
-      { cls: 'step', pic: '🙂', title: 'I like them.', sub: 'Proud of your stuff' }
+      { cls: 'step', pic: '🤷', title: 'Short and calm', sub: 'OK! I like them.' },
+      { cls: 'step', pic: '🚶', title: 'Walk away', sub: 'Go and find your friends' },
+      { cls: 'step', pic: '🧑‍🏫', title: 'Tell a grown-up', sub: 'If it happens again' }
     ]},
     { type: 'practise', mood: 'happy', words: 'OK! I like them.', say: 'Say it calmly, with a shrug: OK! I like them.' },
-    { type: 'tell', mood: 'big', extra: ben('meh'), say: 'Ben shrugs and walks off. It wasn\'t fun for him when Finn stayed calm. If he keeps doing it, Finn will tell a grown-up.' },
-    star('Calm, short answers are a teasing shield.')
+    { type: 'tell', mood: 'big', extra: ben('meh'), say: 'Finn walks off to play with Leo. Stopping unkind behaviour is a grown-up\'s job, so if Ben does it again, Finn will tell his teacher.' },
+    star('Short and calm, walk away, tell. You know what to do.')
   ]
 },
 {
@@ -175,14 +175,14 @@ STORIES.push(
   steps: [
     { type: 'tell', mood: 'calm', say: 'Ben is laughing at Leo and has taken his hat. Leo looks upset.' },
     { type: 'choose', mood: 'wobbly', react: 'finn', say: 'What could Finn do?', options: [
-      { pic: '🤝', text: 'Stand next to Leo and say: Come and play with us', good: true, reply: 'Yes! Standing with Leo shows he isn\'t alone.' },
+      { pic: '🤝', text: 'Stand next to Leo and say: Come and play with us', good: true, reply: 'Yes! Standing with Leo shows he isn\'t alone. Finn doesn\'t need to argue with Ben.' },
       { pic: '🧑‍🏫', text: 'Tell a grown-up', good: true, reply: 'Yes! Telling a grown-up helps Leo stay safe.' },
       { pic: '😆', text: 'Join in laughing', finn: 'wobbly', reply: 'That would make Leo feel even worse. Let\'s try something kind.' },
       { pic: '🚶', text: 'Walk away', finn: 'wobbly', reply: 'Leo might feel all alone. Let\'s try helping.' }
     ]},
     { type: 'practise', mood: 'big', words: 'Come and play with us, Leo.', say: 'Say it in a kind, strong voice: Come and play with us, Leo.' },
-    { type: 'tell', mood: 'big', extra: leo('laugh', 440) + ben('meh', 545), say: 'Leo smiles. Ben gives the hat back and walks off. Finn tells a teacher, just in case.' },
-    star('Standing up for a friend is very brave.')
+    { type: 'tell', mood: 'big', extra: leo('laugh', 440) + ben('meh', 545), say: 'Leo smiles. Finn and Leo walk away together and tell a teacher, who gets Leo\'s hat back.' },
+    star('Being kind to someone who\'s being picked on really helps them.')
   ]
 }
 

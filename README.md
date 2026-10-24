@@ -8,8 +8,10 @@ A simple web prototype to help a shy 7-year-old practise social situations, desi
 - **Faces that react:** the other children (and Finn) change expression when a choice is picked.
 - **Games:** Spot the signal, Face match, Arm's length, Wait for the gap and Brave thoughts (in `games.js`).
 - **Finn's den:** every story, game, mission and adventure earns stars to spend on 13 den parts, from cushions to a rope swing (in `den.js`).
-- **Brave ladder:** real-life missions to tick off with a grown-up.
+- **Brave ladder:** a graded "fear ladder" of real-life steps, each practised three times with a "how did it feel?" check-in. Grown-ups can add their own steps.
 - **For grown-ups:** tips on how to use it.
+
+See [EVIDENCE.md](EVIDENCE.md) for what the app is based on, its limits, and sources.
 
 No sign-in, no ads, no chat. Progress is stored only in the browser on that device.
 

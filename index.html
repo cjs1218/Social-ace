@@ -120,6 +120,11 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .done { color: var(--fox); font-weight: 600; }
 .stars { color: var(--fox); font-family: var(--display); font-size: 20px; }
 .ladder { display: flex; flex-direction: column-reverse; gap: 10px; }
+.rung.next { border-color: var(--fox); }
+.next-tag { display: block; color: var(--fox); font-weight: 600; font-size: 14px; }
+.reps { display: flex; gap: 5px; flex: none; }
+.reps i { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
+.reps i.on { background: var(--leaf); }
 .rung {
   display: flex; align-items: center; gap: 14px; text-align: left;
   background: var(--paper); border: 3px solid var(--line); border-radius: 20px;
@@ -139,6 +144,11 @@ button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 .grown h3 { font-family: var(--display); font-weight: 600; font-size: 19px; margin: 18px 0 4px; }
 .grown p, .grown li { max-width: 62ch; }
 .grown ul { padding-left: 22px; margin: 4px 0; }
+.add-step { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; align-items: center; margin: 8px 0; }
+.add-step label { grid-column: 1 / -1; }
+.custom-list { list-style: none; padding: 0; display: grid; gap: 8px; }
+.custom-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--tint); border-radius: 14px; padding: 8px 12px; }
+.custom-list li span { min-width: 0; }
 .voice-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; align-items: center; margin: 8px 0; }
 .voice-row .small-btn { grid-column: 1 / -1; justify-self: start; }
 .pick {
@@ -481,11 +491,11 @@ const STORIES = [
       { type: 'tell', mood: 'calm', say: 'It\'s the morning at school. Sam waves and says: Hi Finn!' },
       { type: 'tell', mood: 'wobbly', extra: sam('meh'), say: 'Finn feels shy. He looks at the floor and says hi really fast. Sam walks away.' },
       { type: 'choose', mood: 'wobbly', extra: sam('sad'), react: false, say: 'How do you think Sam feels now?', options: [
-        { pic: '😔', text: 'Sad. He thinks Finn doesn\'t like him', good: true, reply: 'Yes. Sam can\'t tell that Finn feels shy inside. He might think Finn doesn\'t want to be friends.' },
+        { pic: '😔', text: 'Sad. He might think Finn doesn\'t like him', good: true, reply: 'Yes. Sam can\'t tell that Finn feels shy inside. He might think Finn doesn\'t want to be friends.' },
         { pic: '😀', text: 'Happy', reply: 'Look at Sam\'s face. He looks sad. When we look away, people can think we don\'t like them.' }
       ]},
       { type: 'lights', mood: 'happy', extra: sam('happy'), say: 'Here is the hi back recipe. Tap each one.', items: [
-        { cls: 'step', pic: '👀', title: 'Look up', sub: 'At their eyebrows or nose. That counts!' },
+        { cls: 'step', pic: '👀', title: 'Look up', sub: 'A quick look at their face. Eyebrows count!' },
         { cls: 'step', pic: '😊', title: 'Smile', sub: 'A small smile is fine' },
         { cls: 'step', pic: '🗣️', title: 'Say their name', sub: 'Hi Sam! Nice and slow' }
       ]},
@@ -496,6 +506,7 @@ const STORIES = [
         { pic: '👋', text: 'Just: Hi Sam! and a wave', good: true, reply: 'That\'s great too. Hi and their name is plenty.' }
       ]},
       { type: 'tell', mood: 'big', extra: sam('laugh'), say: 'Sam grins. He sits next to Finn at carpet time.' },
+      { type: 'tell', mood: 'happy', extra: sam('happy'), say: 'Sometimes people say hi back, and sometimes they are busy and don\'t notice. Either way, Finn did the brave thing.' },
       { type: 'done', mood: 'big', extra: sam('laugh'), say: 'Look up, smile, say their name. You know the hi back recipe! You earned a star!' }
     ]
   },
@@ -525,7 +536,7 @@ const STORIES = [
       { type: 'choose', mood: 'wobbly', extra: kid(470, '#2a9d8f', '#1c1c1c', 'meh') + ball, say: 'Sam says: No, I only want football. What could Finn do?', options: [
         { pic: '👋', text: 'Say: OK, see you later! Then ask someone else', good: true, reply: 'Yes! Not everyone likes the same things, and that\'s OK. There are other children to ask.' },
         { pic: '😡', text: 'Get cross with Sam', face: 'cross', finn: 'cross', reply: 'It\'s OK to feel disappointed. But getting cross can upset Sam. Let\'s try another way.' },
-        { pic: '😢', text: 'Think: nobody likes me', face: 'meh', finn: 'sad', reply: 'That\'s a wobbly thought, but it\'s not true. Sam just likes football. Let\'s try another way.' }
+        { pic: '😢', text: 'Think: nobody likes me', face: 'meh', finn: 'sad', reply: 'That\'s a wobbly thought. Is it really true? Sam just likes football. It doesn\'t mean he doesn\'t like Finn.' }
       ]},
       { type: 'tell', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn asks Ava and Leo. They say: Yes! Let\'s play {game}!' },
       { type: 'done', mood: 'big', extra: kid(450, '#e76f51', '#a0522d', 'laugh') + kid(540, '#7a4fd1', '#e8b545', 'happy'), say: 'Finn found friends who like {game} too. You earned a star!' }
@@ -555,7 +566,7 @@ const STORIES = [
       { type: 'tell', mood: 'big', say: 'Finn is having lunch with Sam. Finn pulls a silly face. Sam laughs. Fun!' },
       { type: 'tell', mood: 'happy', extra: sam('meh'), say: 'Finn keeps going. He pokes Sam and flicks his crisps. Sam isn\'t laughing now.' },
       { type: 'choose', mood: 'happy', extra: sam('cross'), react: false, say: 'Look at Sam. Is Sam still having fun?', options: [
-        { pic: '✋', text: 'No. Sam looks cross', good: true, reply: 'Well spotted! His eyebrows are down and his arms are crossed. That means stop.' },
+        { pic: '✋', text: 'No. Sam looks cross', good: true, reply: 'Well spotted! His eyebrows are down and his arms are crossed. That usually means: stop now.' },
         { pic: '😂', text: 'Yes, keep going', reply: 'Look again. Sam isn\'t smiling, and his arms are crossed. If only one person is laughing, it\'s not a joke any more.' }
       ]},
       { type: 'lights', mood: 'calm', extra: sam('cross'), say: 'When a game stops being fun, use your traffic light. Tap red, then amber, then green.', items: [
@@ -564,7 +575,7 @@ const STORIES = [
         { cls: 'green', title: 'Think', sub: 'Are they having fun?' }
       ]},
       { type: 'choose', mood: 'wobbly', extra: sam('cross'), say: 'What could Finn say to Sam?', options: [
-        { pic: '🤝', text: 'Sorry, I\'ll stop. Want to play a game?', good: true, reply: 'Yes! Stopping and saying sorry fixes things fast.' },
+        { pic: '🤝', text: 'Sorry, I\'ll stop. Want to play a game?', good: true, reply: 'Yes! Stopping and saying sorry usually helps put things right.' },
         { pic: '🙃', text: 'It\'s only a joke!', face: 'cross', reply: 'Finn thinks it\'s a joke, but Sam doesn\'t. Let\'s try another way.' },
         { pic: '👉', text: 'Poke him again', face: 'cross', finn: 'cross', reply: 'That will make Sam more cross. Let\'s try another way.' }
       ]},
@@ -586,7 +597,23 @@ const SIGNALS = [
   { mood: 'happy', line: 'Sam asks, can I have a turn?', go: true }
 ];
 
+/* Brave ladder: graded steps, easiest first. Each step is practised several times
+   (repetition is what makes a feared situation feel easier), with a quick
+   "how did it feel?" check-in. Grown-ups can add their own steps. */
 const LADDER = [
+  'Wave to someone you know',
+  'Say good morning to your teacher in a strong voice',
+  'When a boy says hi: look up, smile, say hi and his name',
+  'Say thank you to a shop helper or librarian',
+  'Ask a grown-up a question at a club',
+  'Say hi to a child in your class you don\'t play with yet',
+  'In a game, stop and check: Is this still fun for them?',
+  'At break, suggest a game you like to someone',
+  'Ask a child: Can I play?',
+  'Tell a grown-up about something that bothered you'
+];
+const REPS = 3;
+const OLD_LADDER = [
   'Wave to someone you know',
   'When a boy says hi: look up, smile, say hi and his name',
   'Say hi to a shop helper or librarian',
@@ -598,6 +625,22 @@ const LADDER = [
   'Stand tall and say good morning in a strong voice',
   'Tell a grown-up about something that bothered you'
 ];
+function ladderSteps() { return LADDER.concat(store('customLadder') || []); }
+function reps() {
+  let r = store('reps');
+  if (!r) {
+    r = {};
+    (store('ladder') || []).forEach(k => {
+      const t = OLD_LADDER[k];
+      const now = LADDER.find(x => x === t) || (k === 2 ? LADDER[3] : k === 7 ? LADDER[6] : k === 8 ? LADDER[1] : null);
+      if (now) r[now] = 1;
+    });
+    store('reps', r);
+  }
+  return r;
+}
+const stepDone = t => (reps()[t] || 0) >= REPS;
+const missionText = m => typeof m === 'number' ? (OLD_LADDER[m] || LADDER[0]) : m;
 
 const CATS = [
   { id: 'hi', pic: '👋', title: 'Saying hi' },
@@ -615,12 +658,13 @@ const todayKey = () => new Date().toDateString();
 const pick = a => a[Math.floor(Math.random() * a.length)];
 
 function newPlan(prev) {
-  const stars = store('stars') || {}, ladder = store('ladder') || [];
+  const stars = store('stars') || {};
   const fresh = STORIES.filter(s => !stars[s.id] && (!prev || s.id !== prev.story));
   const story = (fresh.length ? pick(fresh) : pick(STORIES.filter(s => !prev || s.id !== prev.story))).id;
   const game = pick(GAMES.filter(g => !prev || g.id !== prev.game)).id;
-  const todo = LADDER.map((_, k) => k).filter(k => !ladder.includes(k));
-  const mission = todo.length ? todo[0] : pick(LADDER.map((_, k) => k));
+  // Mission = the lowest ladder step not yet practised enough times
+  const steps = ladderSteps();
+  const mission = steps.find(t => !stepDone(t)) || pick(steps);
   return { date: todayKey(), story, game, mission, step: 0 };
 }
 function currentPlan() {
@@ -644,7 +688,7 @@ function showAdventure() {
   const parts = [
     { pic: story.pic, label: 'Story', title: story.title },
     { pic: game.pic, label: 'Game', title: game.title },
-    { pic: '🌟', label: 'Real-life mission', title: LADDER[p.mission] }
+    { pic: '🌟', label: 'Real-life mission', title: missionText(p.mission) }
   ];
   const complete = p.step >= 3;
   $view.replaceChildren(el(`
@@ -676,13 +720,13 @@ function showAdventure() {
 }
 
 function showMission(p) {
-  const text = LADDER[p.mission];
+  const text = missionText(p.mission);
   $view.replaceChildren(el(`
     <div class="stage">${scene('home', 'big', '')}
       <div class="talk">
         <p class="say">Your real-life mission:</p>
         <p class="speech">${text}</p>
-        <p class="hint">Do it with a grown-up today or tomorrow. Then tick it off on the Brave ladder.</p>
+        <p class="hint">Grown-up: before you go, practise it once at home (you can be the other child). Afterwards, tap it on the Brave ladder and say how it felt.</p>
         <button class="big" id="go">We'll try it! ✓</button>
       </div>
     </div>`));
@@ -705,7 +749,7 @@ function finishButtons() { const h = $view.querySelector('#home'); if (h) h.oncl
 function showHome() {
   homeBtn.hidden = true;
   const stars = store('stars') || {};
-  const ladder = store('ladder') || [];
+  const ladderDone = ladderSteps().filter(stepDone).length, ladderTotal = ladderSteps().length;
   const total = wallet(), nx = nextItem();
   adventure = null;
   $view.replaceChildren(el(`
@@ -742,7 +786,7 @@ function showHome() {
       <h2 class="cat-title"><span aria-hidden="true">🌟</span> Real life</h2>
       <button class="tile" data-go="ladder">
         <span class="pic" aria-hidden="true">🪜</span>
-        <span><b>Brave ladder</b><small>Real-life missions · ${ladder.length} of ${LADDER.length}</small></span>
+        <span><b>Brave ladder</b><small>Real-life practice · ${ladderDone} of ${ladderTotal} steps</small></span>
       </button>
       <button class="tile" data-go="grown">
         <span class="pic" aria-hidden="true">🧑‍🧒</span>
@@ -916,31 +960,68 @@ function showSignals(i, score, rounds) {
 
 function showLadder() {
   homeBtn.hidden = false;
-  const done = store('ladder') || [];
+  const steps = ladderSteps(), r = reps();
+  const nextUp = steps.findIndex(t => !stepDone(t));
   $view.replaceChildren(el(`
     <div class="talk" style="padding:0">
       <p class="say">Brave ladder</p>
-      <p class="hint">Do these in real life with a grown-up. Start at the bottom. Tap a step when you've done it.</p>
+      <p class="hint">Real-life practice with a grown-up. Start at the bottom. Do each step ${REPS} times. It gets easier each time.</p>
     </div>
     <div class="ladder" style="margin-top:14px">
-      ${LADDER.map((t, k) => `
-        <button class="rung ${done.includes(k) ? 'done' : ''}" data-k="${k}">
-          <span class="num">${k + 1}</span><span class="txt">${t}</span><span class="star" aria-hidden="true">★</span>
-        </button>`).join('')}
+      ${steps.map((t, k) => {
+        const n = Math.min(r[t] || 0, REPS);
+        return `<button class="rung ${n >= REPS ? 'done' : ''} ${k === nextUp ? 'next' : ''}" data-k="${k}">
+          <span class="num">${k + 1}</span>
+          <span class="txt">${t}${k === nextUp ? '<small class="next-tag">Next step</small>' : ''}</span>
+          <span class="reps" aria-label="${n} of ${REPS} times">${Array.from({ length: REPS }, (_, j) => `<i class="${j < n ? 'on' : ''}"></i>`).join('')}</span>
+        </button>`;
+      }).join('')}
     </div>`));
-  currentLine = 'Brave ladder. Do these in real life with a grown-up. Start at the bottom. ' + LADDER.join('. ');
-  $view.querySelectorAll('.rung').forEach(b => b.onclick = () => {
-    const k = +b.dataset.k;
-    const list = store('ladder') || [];
-    const has = list.includes(k);
-    const nextList = has ? list.filter(x => x !== k) : [...list, k];
-    store('ladder', nextList);
-    const paid = store('ladderPaid') || [];
-    if (!has && !paid.includes(k)) { store('ladderPaid', [...paid, k]); earn(1); }
-    b.classList.toggle('done', !has);
-    if (!has) { b.querySelector('.star').classList.add('pop'); speak('You did it! ' + LADDER[k] + '. That was brave!'); }
-    else speak(LADDER[k]);
+  currentLine = 'Brave ladder. Real-life practice with a grown-up. Start at the bottom, and do each step ' + REPS + ' times. ' + (nextUp >= 0 ? 'Your next step is: ' + steps[nextUp] : '');
+  const nx = $view.querySelector('.rung.next');
+  if (nx) nx.scrollIntoView({ block: 'center' });
+  $view.querySelectorAll('.rung').forEach(b => b.onclick = () => checkIn(steps[+b.dataset.k]));
+}
+
+/* After a real-life try: how did it feel? Doing it even when it feels wobbly is the brave part. */
+function checkIn(text) {
+  $view.replaceChildren(el(`
+    <div class="stage">${scene('home', 'happy', '')}
+      <div class="talk">
+        <p class="say">You tried: <b>${text}</b></p>
+        <p class="say">How did it feel?</p>
+        <div class="feelings">
+          <button class="choice feel" data-f="easy"><span class="pic" aria-hidden="true">😀</span>Easy</button>
+          <button class="choice feel" data-f="wobbly"><span class="pic" aria-hidden="true">😬</span>A bit wobbly</button>
+          <button class="choice feel" data-f="very"><span class="pic" aria-hidden="true">😰</span>Very wobbly</button>
+        </div>
+        <p class="say" id="reply" hidden></p>
+        <button class="big" id="go" hidden>Back to the ladder</button>
+        <button class="small-btn" id="notyet">Not yet, go back</button>
+      </div>
+    </div>`));
+  speak('You tried: ' + text + '. How did it feel?');
+  const reply = $view.querySelector('#reply'), go = $view.querySelector('#go');
+  $view.querySelector('#notyet').onclick = showLadder;
+  let answered = false;
+  $view.querySelectorAll('[data-f]').forEach(b => b.onclick = () => {
+    if (answered) return; answered = true;
+    b.classList.add('picked-good');
+    const r = reps(); r[text] = (r[text] || 0) + 1; store('reps', r);
+    const log = store('feelLog') || []; log.push({ step: text, felt: b.dataset.f, date: new Date().toISOString().slice(0, 10) }); store('feelLog', log.slice(-200));
+    earn(1);
+    const n = r[text];
+    const msg = {
+      easy: n >= REPS ? 'Brilliant! It feels easy now. You\'re ready for the next step up.' : 'Brilliant! Keep practising and it will feel even easier.',
+      wobbly: 'You did it, even though it felt wobbly. That\'s what being brave means. It usually gets easier each time you do it.',
+      very: 'You did it, even though it felt really wobbly. That\'s super brave. Let\'s practise this step again before moving up.'
+    }[b.dataset.f];
+    react(null, b.dataset.f === 'easy' ? 'big' : 'happy');
+    reply.textContent = msg; reply.hidden = false; go.hidden = false;
+    $view.querySelector('#notyet').hidden = true;
+    speak(msg);
   });
+  go.onclick = showLadder;
 }
 
 function showGrown() {
@@ -963,41 +1044,58 @@ function showGrown() {
         <button class="small-btn" id="tryVoice">🔊 Try it</button>
       </div>
       <p class="hint">Want a more natural voice? On an iPhone or iPad, go to Settings, Accessibility, Spoken Content, Voices, English, and download an "Enhanced" or "Premium" UK voice. Then choose it here.</p>
-      <h3>How to use it</h3>
+      <h3>The most important part: practice in real life</h3>
+      <p>Social Ace is a rehearsal space. Research on social skills groups for children with ADHD-type difficulties finds that practising skills away from real life does little on its own. What looks more promising is a grown-up coaching the skills in real situations. So use the app to rehearse, then help him try it for real.</p>
       <ul>
-        <li>Sit together for 5–10 minutes. One story is enough.</li>
-        <li>Talk about the story afterwards: "When could you say 'Can I play?'"</li>
-        <li>Before a party or new club, play the matching story that day.</li>
-        <li>Use the Brave ladder for real-life practice. Start small and praise the effort, not the outcome.</li>
+        <li>Sit together for 5–10 minutes. One story is enough. Afterwards, act it out: you be Sam, he says the brave words.</li>
+        <li>Before a party, club or playdate, play the matching story that day and agree one thing to try.</li>
+        <li>Afterwards, ask "What did you try?" before "Did you have fun?"</li>
+        <li>Family game nights are good practice for taking turns, waiting and losing well.</li>
+        <li>Invite one child at a time, ideally one with a shared interest. Short, planned playdates are easier to make go well.</li>
       </ul>
-      <h3>If he blanks children who say hi</h3>
-      <p>Shy children often look down and rush their reply, and the other child can read that as "he doesn't like me". "Saying hi back" teaches a three-part recipe: look up, smile, say their name.</p>
+      <h3>The Brave ladder</h3>
+      <p>This is a "fear ladder", the step-by-step approach used in CBT for childhood anxiety. He faces small challenges first and repeats each one until it feels easier, then moves up.</p>
       <ul>
-        <li>Full eye contact isn't needed. Looking at eyebrows or the nose is easier and looks the same to the other child.</li>
-        <li>Help him learn the names of the boys who say hi. A name makes "hi" feel friendly.</li>
-        <li>Practise at home: say "Hi!" to each other at the door and try the recipe.</li>
-        <li>Afterwards, notice it: "I saw you say hi to Sam. He looked pleased."</li>
+        <li>Each step is done ${REPS} times. After each try he taps it and says how it felt. If it was very wobbly, stay on that step a bit longer.</li>
+        <li>Praise the trying, not the result: "You said hi even though it felt wobbly. That was brave."</li>
+        <li>Give him time to answer people himself. Try not to answer for him or rescue him straight away.</li>
+        <li>Add steps that fit his real life below. Make them small and specific.</li>
       </ul>
-      <h3>If he doesn't like football</h3>
-      <p>"Not football today" gives him a kind way to say no and suggest something else. It also covers what to do if the other child says no. Help him by asking his teacher which classmates aren't into football, looking for lunchtime clubs, and inviting one child at a time to play at home.</p>
-      <h3>Building confidence</h3>
-      <p>"Feeling brave" practises standing tall, swapping wobbly thoughts for brave ones, and shrugging off mistakes. "Brave thoughts" is a quick game version of the thought swap.</p>
+      <div class="add-step">
+        <label for="newStep" class="hint">Add a ladder step</label>
+        <input id="newStep" class="pick" type="text" maxlength="90" placeholder="e.g. Ask Leo to play at break">
+        <button class="small-btn" id="addStep">Add step</button>
+      </div>
+      <ul id="customList" class="custom-list"></ul>
+      <h3>Praise that helps</h3>
       <ul>
-        <li>Praise effort and courage, not just results: "You said hi even though you felt shy. That was brave."</li>
-        <li>Be specific: "You waited for Sam to finish talking" means more than "good boy".</li>
+        <li>Be specific about what he did: "You waited for Sam to finish talking."</li>
+        <li>Keep praise genuine and not over the top. In one study, children with low self-esteem who were told their work was "incredibly" good went on to avoid harder challenges.</li>
         <li>Let him see you make mistakes and say "Oops! I'll try again."</li>
-        <li>Remind him of what he's good at, especially on wobbly days.</li>
       </ul>
-      <h3>Bullying</h3>
-      <p>"Dealing with bullies" teaches a strong calm voice ("Stop. I don't like that."), calm comebacks, keeping safe if someone hurts him, standing with a friend, and always telling a grown-up.</p>
+      <h3>Saying hi and eye contact</h3>
+      <p>"Saying hi back" teaches look up, smile, say their name. Shy children often look down and rush, and other children can read that as unfriendly.</p>
       <ul>
-        <li>Bullying is unkind behaviour that's repeated and on purpose. One-off fallouts are normal and are worth helping with differently.</li>
-        <li>If he tells you, stay calm, thank him for telling, and write down what happened and when.</li>
-        <li>Talk to his class teacher. Every school must have an anti-bullying policy, and you can ask to see it.</li>
-        <li>Tell him clearly that telling a grown-up is never "telling tales" when someone keeps being unkind or hurts him.</li>
+        <li>He doesn't need to hold eye contact. A quick look at the face is enough. Don't force it.</li>
+        <li>Help him learn the names of the boys who say hi.</li>
+        <li>Practise at the front door: say "Hi!" to each other and try the recipe.</li>
       </ul>
-      <h3>If he winds other children up</h3>
-      <p>Winding people up is often a way of trying to connect when starting a conversation feels hard. "Is it still funny?" and "Spot the signal" practise noticing when the other child has stopped enjoying it. Use the same words at home: "Stop, look, think. Is your friend still having fun?"</p>
+      <h3>Wobbly thoughts</h3>
+      <p>The thought swap is a simple version of a CBT technique: notice the worried thought, check it against what really happened, and choose a more helpful one. The aim isn't to think positively. It's "I can try, even if it feels wobbly."</p>
+      <h3>Bullying</h3>
+      <p>Bullying means hurtful behaviour that's repeated, on purpose, and where it's hard for the child to defend himself. One-off fallouts are normal and need a different kind of help.</p>
+      <ul>
+        <li>The app teaches a calm, assertive line ("Stop. I don't like that."), walking away, and telling a grown-up. Never tell him to hit back: he may get hurt or into trouble.</li>
+        <li>Make it clear it's not his fault, and that stopping it is the grown-ups' job, not his.</li>
+        <li>If he tells you, stay calm, thank him, and write down what happened, who, where and when.</li>
+        <li>Talk to his class teacher and ask to see the school's anti-bullying policy. Agree a plan and a date to check back.</li>
+      </ul>
+      <h3>Winding others up</h3>
+      <p>Winding people up is often a clumsy way of trying to connect. "Is it still funny?" and the faces games practise noticing when the other child has stopped enjoying it. Use the same words at home: "Stop, look, think. Is your friend still having fun?"</p>
+      <h3>When to get more help</h3>
+      <p>Speak to his school's SENCO or your GP if shyness or worry stops him doing everyday things, if friendship problems are getting worse, or if you'd like advice on assessment for ADHD or dyslexia. Some NHS services offer parent-led CBT for childhood anxiety.</p>
+      <h3>About the evidence</h3>
+      <p>Social Ace hasn't been tested in a trial. It's built from approaches that have research behind them: rehearsal and role play, step-by-step exposure for worries, simple thought challenging, specific praise, and parent coaching of friendship skills. The quick games are for practice and fun. There's little evidence that skills learned in games carry over to real life without real-life practice. The full list of sources is in the EVIDENCE file on GitHub.</p>
       <h3>About this prototype</h3>
       <p>No sign-in, no ads, no chat. Progress is kept only on this device.</p>
       <button class="small-btn" id="reset">Reset stars, den and ladder</button>
@@ -1020,8 +1118,27 @@ function showGrown() {
   sp.onchange = () => { store('speed', sp.value); speak('Hi! I\'m Finn. Let\'s be brave together!'); };
   $view.querySelector('#tryVoice').onclick = () => speak('Hi! I\'m Finn. Let\'s be brave together!');
 
+  const list = $view.querySelector('#customList'), input = $view.querySelector('#newStep');
+  const drawCustom = () => {
+    const c = store('customLadder') || [];
+    list.innerHTML = c.map((t, k) => `<li><span>${t.replace(/</g, '&lt;')}</span><button class="small-btn" data-del="${k}" aria-label="Remove step">Remove</button></li>`).join('');
+    list.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+      const c2 = store('customLadder') || []; c2.splice(+b.dataset.del, 1); store('customLadder', c2); drawCustom();
+    });
+  };
+  drawCustom();
+  $view.querySelector('#addStep').onclick = () => {
+    const t = input.value.trim().replace(/\s+/g, ' ');
+    if (!t) return;
+    const c = store('customLadder') || [];
+    if (!c.includes(t) && !LADDER.includes(t)) { c.push(t); store('customLadder', c); }
+    input.value = ''; drawCustom();
+  };
+  input.onkeydown = e => { if (e.key === 'Enter') $view.querySelector('#addStep').click(); };
+
   $view.querySelector('#reset').onclick = () => {
-    ['stars', 'ladder', 'ladderPaid', 'den'].forEach(k => store(k, k === 'stars' ? {} : []));
+    ['stars', 'ladder', 'ladderPaid', 'den', 'feelLog'].forEach(k => store(k, k === 'stars' ? {} : []));
+    store('reps', {});
     store('earned', 0); store('advDone', 0); store('adv', null);
     $view.querySelector('#resetMsg').hidden = false;
   };
